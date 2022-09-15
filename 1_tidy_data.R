@@ -1,10 +1,10 @@
 # Created: Nov. 24, 2020
-# Updated: Jan. 18, 2021
+# Updated: Sept. 14, 2022
 
 # This script creates data used in all downstream analyses. 
 # Errors and discrepancies in the source data are corrected. Species not shared appearing in both surveys, hybrids, family-level IDs, invasives, and unknowns are removed in this script.
 
-# IMPORTANT NOTE: unless otherwise indicated, always use Understory_All.csv for these analyses.
+# IMPORTANT NOTE: unless otherwise indicated, always use 0_Understory_All.csv for these analyses.
 
 # Packages needed:
 
@@ -16,14 +16,14 @@ library(MuMIn)
 
 #### STEP 1: Import data ####
 
-und.cover <- read.csv("data/Understory_All.csv", header=TRUE, na.strings="") # L = Legacy and R = Resurvey
+und.cover <- read.csv("data/0_Understory_All.csv", header=TRUE, na.strings="") # L = Legacy and R = Resurvey
 und.cover$Elevation.m <- as.numeric(as.character(und.cover$Elevation.m)) #NAs introduced by coercion - not a problem
 
-lat.long <- read.csv("data/Lat.Long.csv", header=TRUE, na.strings="")
+lat.long <- read.csv("data/0_Lat.Long.csv", header=TRUE, na.strings="")
 plot.names <- lat.long[, c(2, 3, 6)]
 names(plot.names) <- c("Plot.2015", "Plot.1980", "Elevation.m")
 
-fires <- read.csv("data/All_Plots_Wildfire_Join.csv", header=TRUE, na.strings="")
+fires <- read.csv("data/0_All_Plots_Wildfire_Join.csv", header=TRUE, na.strings="")
 
 
 
@@ -204,9 +204,9 @@ cover.fires$Fires <- as.factor(cover.fires$Fires)
 
 #### STEP 6: Adding raw % cover as a covariate, to be used in rarefaction ####
 
-# % cover was coded in classes in Understory_All.csv to allow for comparison with legacy data. To support rarefaction, we'll read in our original unedited data files containing raw % cover.
-raw.2015 <- read.csv("data/Understory_2015.csv", na.strings = c("", " ")) #raw data
-raw.2014 <- read.csv("data/Understory_2014_Aug8.csv", na.strings = c("", " ")) #raw data
+# % cover was coded in classes in 0_Understory_All.csv to allow for comparison with legacy data. To support rarefaction, we'll read in our original unedited data files containing raw % cover.
+raw.2015 <- read.csv("data/0_Understory_2015.csv", na.strings = c("", " ")) #raw data
+raw.2014 <- read.csv("data/0_Understory_2014_Aug8.csv", na.strings = c("", " ")) #raw data
 raw.2015$Percent.Cover <- as.numeric(raw.2015$Percent.Cover)
 raw.2014$Percent.Cover <- as.numeric(raw.2014$Percent.Cover)
 
@@ -271,7 +271,7 @@ names(und.presence.small) <- c("Plot", "Species.Code", "Pres.Abs")
 und.presence <- merge(und.presence.small, list.fires, by = "Plot")
 und.presence$Data.Type <- as.factor(und.presence$Data.Type)
 
-# Correcting for a small number of species that ended up double-counted in Understory_All
+# Correcting for a small number of species that ended up double-counted in 0_Understory_All
 und.presence$Pres.Abs <- ifelse(und.presence$Pres.Abs >= 1, 1, 0)
 
 write.csv(und.presence, "data/1_presence_fires_unrarefied.csv", row.names = FALSE)
@@ -287,8 +287,8 @@ plot.names <- plot.names[!plot.names$Plot.1980 == "2045" &
 list.fires <- list.fires[!list.fires$Plot == "2045" & 
                            !list.fires$Plot == "Hozo140", ]
 
-save(plot.names, file = "data/plot.names.Rda")
-save(list.fires, file = "data/list.fires.Rda")
+save(plot.names, file = "data/1.plot.names.Rda")
+save(list.fires, file = "data/1.list.fires.Rda")
 
 
 
