@@ -1,8 +1,7 @@
 # Created: Nov. 24, 2020
 # Updated: Sept. 14, 2022
 
-# This script creates data used in all downstream analyses. 
-# Errors and discrepancies in the source data are corrected. Species not shared appearing in both surveys, hybrids, family-level IDs, invasives, and unknowns are removed in this script.
+# This script tidies data used in all downstream analyses by (1) correcting errors and discrepancies in the source data and (2) removing species not appearing in both surveys, hybrids, species not identified past family-level IDs or that were otherwise unknown, and non-native species.
 
 # IMPORTANT NOTE: unless otherwise indicated, always use 0_Understory_All.csv for these analyses.
 
@@ -41,7 +40,7 @@ fires <- read.csv("data/0_All_Plots_Wildfire_Join.csv", header=TRUE, na.strings=
 # --> Supp2026, Supp5127, and ROSS4001REF: Supplemental plots taken for future reference. Ignore corresponding 1980 plot name; this was the closest plot.
 # --> Thor223 (4044), Bak494 (8017): History of logging.
 
-# In other words, we visited 378 plots. 3 of these were supplementary and 3 could not be evaluated due to data recording oversights. 2 of these were excluded due to logging history. Thus, total N = 370.
+# In other words, we visited 378 plots. 3 of these were supplementary. 3 could not be evaluated due to data recording oversights. 2 of these were excluded due to logging history. Thus, total N = 370.
 
 nrow(fires) #Should be 373 before
 nrow(plot.names) #Should be 378 before
@@ -104,7 +103,7 @@ nrow(und.cover) #Should be 6690 after
 length(table(und.cover$Species.Code[und.cover$Data.Type == "Legacy"])) #219 species
 length(table(und.cover$Species.Code[und.cover$Data.Type == "Resurvey"])) #536 species
 
-## 3(a): Remove invasives, family-level IDs, trees, and lichen
+## 3(a): Remove non-natives, family-level IDs, trees, and lichen
 removal3A.cover <- und.cover[!und.cover$Species.Code == "XBOR" &    # X___ = family-level ID
                                !und.cover$Species.Code == "XBRA" &
                                !und.cover$Species.Code == "XLAM" &
