@@ -4,7 +4,11 @@
 # This script will be used to undertake part b of the PRESENCE analyses (modeling)
 # It will NOT produce the final version of the analysis, but is instead used for logging 
 # model warnings and framework-switching (fire vs. no fire). 
-# Part of this script creates a moderately large (16 MB) file containing 4,200+ text logs; these are not stored on GitHub but can be shared upon request and/or reproduced locally.
+
+# Part of this script creates a ~16 MB worth of 4,200+ text logs and places them in a folder
+# "warning_logs"; these are not stored on GitHub but can be shared upon request and/or
+# reproduced locally. User will need to adjust the destination directory (lines 102 and 104).
+
 # No CIs are generated in this script.
 
 # IMPORTANT NOTE: unless otherwise indicated, always use Understory_All.csv for these analyses as it is the ONLY file with up-to-date corrections.
@@ -46,7 +50,7 @@ coeff.all <-c( "Elevation.m",
 load("data/rare.ALL.Rda") # Run time 5 sec
 
 # Import for both data types:
-load("data/Species.List.Rda") #TODO this file was made in an undocumented step
+load("data/0.Species.List.Rda")
 species.list <- shifts$Species.Code[!shifts$Species.Code=="MOSS"] #removing "MOSS"
 species.list <- factor(species.list)
 
@@ -84,7 +88,7 @@ for(D in 1:100) { #RUN TIME: 32 minutes 51 sec
                                                ref="Legacy.Unburned")
     und.presence.SPEC$Fires <- relevel(und.presence.SPEC$Fires, ref="Unburned")
     und.presence.SPEC$Data.Type <- relevel(und.presence.SPEC$Data.Type, ref="Legacy")
-    und.presence.SPEC$Elevation.m2 <- und.presence.SPEC$Elevation.m^2 #TODO better than poly()?
+    und.presence.SPEC$Elevation.m2 <- und.presence.SPEC$Elevation.m^2
     und.presence.SPEC <- und.presence.SPEC[complete.cases(und.presence.SPEC), ] #Just in case
     
     # Emptying out previous model objects
