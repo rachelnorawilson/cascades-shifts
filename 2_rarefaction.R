@@ -1,9 +1,9 @@
 # Created: Jan. 11, 2021
 # Updated: Jan. 25, 2021
 
-# IMPORTANT: Do NOT overwrite original rarefied dataset! This script is for posterity only.
+# IMPORTANT: Do NOT overwrite original rarefied dataset rare.ALL.Rda! This script is for posterity only. Did not set seed.
 
-# This script will be used to created a RAREFIED set of datasets, whittled to shared species (those appearing in both surveys). Rarefaction is used to correct for higher plot-level species richness at the resurvey time point, likely driven by  greater search and identification effort.
+# This script was used to created a RAREFIED set of datasets, whittled to shared species (those appearing in both surveys). Rarefaction is used to correct for higher plot-level species richness at the resurvey time point, likely driven by  greater search and identification effort.
 
 # Packages needed:
 
