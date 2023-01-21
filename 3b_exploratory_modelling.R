@@ -1,9 +1,11 @@
 # Created: Dec. 11, 2020
 # Updated: Feb. 22, 2021
 
-# This script will be used to undertake part a of the PRESENCE analyses (modeling)
-# It will NOT produce the final version of the analysis, but is instead used for learning about
-# model warnings and framework-switching (fire vs. no fire). No CIs generated in this version.
+# This script will be used to undertake part b of the PRESENCE analyses (modeling)
+# It will NOT produce the final version of the analysis, but is instead used for logging 
+# model warnings and framework-switching (fire vs. no fire). 
+# Part of this script creates a moderately large (16 MB) file containing 4,200+ text logs; these are not stored on GitHub but can be shared upon request and/or reproduced locally.
+# No CIs are generated in this script.
 
 # IMPORTANT NOTE: unless otherwise indicated, always use Understory_All.csv for these analyses as it is the ONLY file with up-to-date corrections.
 
@@ -11,7 +13,7 @@
 
 library(MuMIn)
 library(plyr)
-source("scripts/3_dredge_log_to_df.R")
+source("3a_dredge_log_to_df.R")
 
 # Function to create data frame of coefficients, AIC and model ID:
 df.fun <- function(ModID) {
@@ -23,7 +25,6 @@ df.fun <- function(ModID) {
 }
 
 # List of coefficients between fire and non-fire model framework
-#TODO: confusing
 coeff.all <-c( "Elevation.m", 
                "Elevation.m2", 
                "New.Data.TypeResurvey.Burned", 
@@ -148,7 +149,7 @@ for(D in 1:100) { #RUN TIME: 32 minutes 51 sec
     
     # Stop writing to .txt, import dataframe of warning logs
     closeAllConnections()
-    log.warn <- dredge_log_to_df(log.file.path) # See 3_dredge_log_to_df.R
+    log.warn <- dredge_log_to_df(log.file.path) # See 3a_dredge_log_to_df.R
     log.warn$new_Model_id <- paste("Mod", log.warn$Model_id, sep = ".")
     
     # Run df.fun to pull out coefficients, AIC, model ID from dredge list
