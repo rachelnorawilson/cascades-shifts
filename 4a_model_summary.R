@@ -167,7 +167,7 @@ coeff.count <- ldply(coeff.count.LIST, data.frame)
 coeff.perc <- ldply(coeff.perc.LIST, data.frame)
 
 write.csv(coeff.count, 
-          file = "data/4_presence_coefficients_count.csv", 
+          file = "data/4a_presence_coefficients_count.csv", 
           row.names = FALSE)
 
 # Separate into fire / no fire (currently for perc only)
@@ -176,73 +176,11 @@ coeff.perc.fire <- coeff.perc[coeff.perc$Fire.Included == "Yes", 1:12]
 coeff.perc.nofire <- coeff.perc[coeff.perc$Fire.Included == "No", c(1:6, 13:15)]
 
 write.csv(coeff.perc.fire, 
-          file = "data/4_pres_coefficients_percent_fire.csv", row.names = FALSE)
+          file = "data/4a_pres_coefficients_percent_fire.csv", row.names = FALSE)
 write.csv(coeff.perc.nofire, 
-          file = "data/4_pres_coefficients_percent_NOfire.csv", row.names = FALSE)
+          file = "data/4a_pres_coefficients_percent_NOfire.csv", row.names = FALSE)
 
 
-#### Step 4: Visualizing summary output ####
-#TODO fix this nonsense
-
-# Split into yes/no fire, remove row specifying term wasn't included
-
-rowsum(as.data.frame(sapply(coeff.count[, c("Elevation.m", 
-                                            "Elevation.m2",
-                                            "Resurvey.Burned.fi",
-                                            "Resurvey.Unburned.fi",
-                                            "Elevation.m.Res.Burn.fi",
-                                            "Elevation.m.Res.Unburn.fi",
-                                            "Elevation.m2.Res.Burn.fi",
-                                            "Elevation.m2.Res.Unburn.fi")], 
-                            as.numeric)), group = coeff.count$Species, na.rm = TRUE)
-
-coeff.nozero.fi <- coeff.count[coeff.count$Fire.Included == "Yes" & !coeff.count$Effect == 0, ]
-coeff.nozero.nofi <- coeff.count[coeff.count$Fire.Included == "No" & !coeff.count$Effect == 0, ]
-coeff.nozero.fi[is.na(coeff.nozero.fi)] <- paste(0)
-coeff.nozero.fi[is.na(coeff.nozero.fi)] <- paste(0)
-
-# Summing across +/-
-coeff.sum.fi <- rowsum(as.data.frame(sapply(coeff.nozero.fi[, c("Elevation.m", 
-                                                                "Elevation.m2",
-                                                                "Resurvey.Burned.fi",
-                                                                "Resurvey.Unburned.fi",
-                                                                "Elevation.m.Res.Burn.fi",
-                                                                "Elevation.m.Res.Unburn.fi",
-                                                                "Elevation.m2.Res.Burn.fi",
-                                                                "Elevation.m2.Res.Unburn.fi")], 
-                                            as.numeric)), group = coeff.nozero.fi$Species)
-names(coeff.sum.fi) <- paste("Inc", colnames(coeff.sum.fi), sep = ".")
-coeff.sum.fi$Species <- row.names(coeff.sum.fi)
-coeff.sum.nofi <- rowsum(as.data.frame(sapply(coeff.nozero.nofi[, c("Elevation.m", 
-                                                                    "Elevation.m2",
-                                                                    "Data.Type.nofi",
-                                                                    "Data.Type.Elevation.m.nofi",
-                                                                    "Data.Type.Elevation.m2.nofi")], 
-                                              as.numeric)), group = coeff.nozero.nofi$Species)
-names(coeff.sum.nofi) <- paste("Inc", colnames(coeff.sum.nofi), sep = ".")
-coeff.sum.nofi$Species <- row.names(coeff.sum.nofi)
-
-# Note: I got very carried away here
-
-# Joining to # of times coeff was +
-coeff.pos.fi <- coeff.nozero.fi[coeff.nozero.fi$Effect == "+", c(1:8)]
-names(coeff.pos.fi) <- paste("Pos", colnames(coeff.pos.fi), sep = ".")
-coeff.pos.nofi <- coeff.nozero.nofi[coeff.nozero.nofi$Effect == "+", c(1:2, 9:11)]
-names(coeff.pos.nofi) <- paste("Pos", colnames(coeff.pos.nofi), sep = ".")
-
-coeff.all.fi <- cbind(coeff.sum.fi, coeff.pos.fi)
-coeff.all.nofi <- cbind(coeff.sum.nofi, coeff.pos.nofi)
-
-
-plot(Inc.Resurvey.Burned.fi ~ Pos.Resurvey.Burned.fi, 
-     data = coeff.all.fi)
-text(abs_losses, percent_losses, labels=namebank, cex= 0.7)
-
-
-
-
-test <- lm(Inc.Resurvey.Burned.fi ~ Pos.Resurvey.Burned.fi, data = coeff.all.fi)
-summary(test)
 
 
 
