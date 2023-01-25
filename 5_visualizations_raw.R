@@ -1,7 +1,7 @@
 # Created: Feb. 16, 2021
 # Modified: Mar. 10, 2022
 
-#### This script visualizes raw patterns in rarefied data; see script 6 for visualizing model outputs
+#### This script visualizes raw (arithmetic) patterns in rarefied data; see script 6 for visualizing model outputs
 
 ### Load libraries
 library(tidyverse)
@@ -16,14 +16,14 @@ load("data/rare.ALL.Rda")
 ### Species list
 
 # start with all species
-load("data/Species.List.Rda") #TODO this file was made in an undocumented step
+load("data/Species.List.Rda")
 species.list <- shifts %>% 
   filter(Species.Code!="MOSS") %>% 
   select(Species=Species.Code)
 species.list$Species <- as.character(species.list$Species)
 
 # separate out fire species
-species.list.fire <- read.csv("data/3b_new_coefficients.csv", header = TRUE) %>% 
+species.list.fire <- read.csv("data/3c_new_coefficients.csv", header = TRUE) %>% 
   filter(Type=="Avg")  %>% 
   filter(Fire.Included=="Yes") %>% 
   group_by(Species) %>% 
@@ -61,7 +61,7 @@ el.lowshift.95.fire <- matrix(nrow=100,ncol=dim(species.list.fire)[1])
 ### Clunky for-loops across rarefied datasets by species
 
 ## no-fire species
-for(D in 1:100) {
+for(D in 1:100) { # Run time: 40 seconds
   und <- rare.ALL[[D]]
   und$Data.Type <- as.factor(und$Data.Type)
   und$Elevation.m <- as.numeric(und$Elevation.m)
@@ -100,7 +100,7 @@ for(D in 1:100) {
 }
 
 ## fire species
-for(D in 1:100) {
+for(D in 1:100) { #Run time: 10 seconds
   und <- rare.ALL[[D]]
   und$Data.Type <- as.factor(und$Data.Type)
   und$Elevation.m <- as.numeric(und$Elevation.m)
