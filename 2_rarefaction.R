@@ -19,8 +19,8 @@ und.cover$Data.Type <- as.factor(und.cover$Data.Type)
 load("data/Species.List.Rda") #Note that this file was made in an undocumented step
 species.list <- shifts$Species.Code[!shifts$Species.Code=="MOSS"] #removing "MOSS"
 species.list <- factor(species.list)
-load("data/plot.names.Rda")
-load("data/list.fires.Rda")
+load("data/1.plot.names.Rda")
+load("data/1.list.fires.Rda")
 plot.names$Plot.2015 <- factor(plot.names$Plot.2015)
 
 
