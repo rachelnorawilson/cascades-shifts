@@ -297,12 +297,12 @@ warn.ALLDAT.finaldf <- ldply(warn.ALLDAT, data.frame)
 
 # Store output as CSV
 
-write.csv(coeff.ALLDAT.finaldf, 
-          file = "data/3_presence_ALLDAT_ALLSPEC_coefficients.csv", 
-          row.names = FALSE)
-write.csv(warn.ALLDAT.finaldf, 
-          file = "data/3_presence_ALLDAT_ALLSPEC_warnings.csv", 
-          row.names = FALSE)
+# write.csv(coeff.ALLDAT.finaldf, 
+#          file = "data/3_presence_ALLDAT_ALLSPEC_coefficients.csv", 
+#          row.names = FALSE)
+# write.csv(warn.ALLDAT.finaldf, 
+#          file = "data/3_presence_ALLDAT_ALLSPEC_warnings.csv", 
+#          row.names = FALSE)
 
 
 
