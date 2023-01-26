@@ -321,7 +321,7 @@ violin.plot.raw <- ggplot(rarefied.change.tall.raw, aes(x=factor(edge, level=lev
   annotate("text", x=2.95, y=440, label="*") 
 violin.plot.raw
 
-ggsave("figures/violin_1panel_raw.pdf", violin.plot.raw, device="pdf", width=8, height=5)
+# ggsave("figures/violin_1panel_raw.pdf", violin.plot.raw, device="pdf", width=8, height=5)
 
 violin.plot.perc <- ggplot(rarefied.change.tall.perc, aes(x=factor(edge, level=level_order.perc), y=change, fill=fire)) +#, color=edge, fill=edge)) + 
   geom_violin() +
@@ -343,7 +343,7 @@ violin.plot.perc <- ggplot(rarefied.change.tall.perc, aes(x=factor(edge, level=l
   annotate("text", x=2.95, y=440, label="*") 
 violin.plot.perc
 
-ggsave("figures/violin_1panel_perc.pdf", violin.plot.perc, device="pdf", width=8, height=5)
+ggsave("figures/violin_1panel_perc.pdf", violin.plot.perc, device="pdf", width=8, height=5) # file name is correct, but doesn't match the file I see on Dropbox
 
 
 
@@ -392,54 +392,11 @@ p.facet <- ggplot(rarefied.change.calcs.facet) +
   theme(text=element_text(size=16), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.text.x = element_text(angle=90, hjust=0, vjust=0.5))
 p.facet
 
-ggsave("figures/5_elevation_ranges_2panel.pdf", p.facet, device="pdf", width=11, height=8)
+ggsave("figures/5_elevation_ranges_2panel.pdf", p.facet, device="pdf", width=11, height=8) 
+# Extra species names deleted and phylopic-type images added in Adobe Illustrator
 
 
-### Probing what happens on burned vs unburned plots for fire-experiencing species
-rarefied.change.calcs.unburned <- read_csv("data/5_range.change.calcs_unburned.csv")
-rarefied.change.calcs.burned <- read_csv("data/5_range.change.calcs_burned.csv")
-rarefied.change.calcs.sensitivity <- left_join(rarefied.change.calcs.unburned, rarefied.change.calcs.burned, by=c("X1", "species", "min.raw.leg", "max.raw.leg", "med.leg", "min.025.leg", "max.975.leg", "Species", "fire")) #%>% 
-#select(-species) %>% 
-#rename_with(~ (gsub(".x", ".unburned", .x))) %>% 
-#rename_with(~ (gsub(".y", ".burned", .x)))
 
-rarefied.change.calcs.fire.sens <- rarefied.change.calcs.sensitivity %>% 
-  filter(fire=="yes") %>% 
-  mutate(species.rank.med = dense_rank(med.leg),
-         both.min.raw.burn = pmax(min.raw.leg, min.raw.res.y),
-         both.max.raw.burn = pmin(max.raw.leg, max.raw.res.y),
-         both.min.perc.burn = pmax(min.025.leg, min.025.res.y),
-         both.max.perc.burn = pmin(max.975.leg, max.975.res.y),
-         both.min.raw.unburn = pmax(min.raw.leg, min.raw.res.x),
-         both.max.raw.unburn = pmin(max.raw.leg, max.raw.res.x),
-         both.min.perc.unburn = pmax(min.025.leg, min.025.res.x),
-         both.max.perc.unburn = pmin(max.975.leg, max.975.res.x))
-
-labs = rarefied.change.calcs.fire.sens$Species
-p.fire.unburned <- ggplot(rarefied.change.calcs.fire.sens) + 
-  geom_rect(aes(xmin=species.rank.med-0.33, xmax=species.rank.med+0.33, ymin=min.025.leg, ymax=max.975.leg), fill = "#F8766D") + # historic range in red; will show areas of range contractions
-  geom_rect(aes(xmin=species.rank.med-0.33, xmax=species.rank.med+0.33, ymin=min.025.res.x, ymax=max.975.res.x), fill = "#00BFC4") + # modern range in blue; will show areas of range expansion
-  geom_rect(aes(xmin=species.rank.med-0.33, xmax=species.rank.med+0.33, ymin=both.min.perc.unburn, ymax=both.max.perc.unburn), fill = "#bdbdbd") + # areas common to both in grey
-  ylim(0,2200) +
-  scale_x_continuous(breaks=c(1:7), labels=labs) +
-  xlab("") +
-  ylab("Elevation (m)") +
-  theme_bw() +
-  theme(text=element_text(size=16), panel.grid.major = element_blank(), panel.grid.minor =   element_blank())
-
-p.fire.burned <- ggplot(rarefied.change.calcs.fire.sens) + 
-  geom_rect(aes(xmin=species.rank.med-0.33, xmax=species.rank.med+0.33, ymin=min.025.leg, ymax=max.975.leg), fill = "#F8766D") + # historic range in red; will show areas of range contractions
-  geom_rect(aes(xmin=species.rank.med-0.33, xmax=species.rank.med+0.33, ymin=min.025.res.y, ymax=max.975.res.y), fill = "#00BFC4") + # modern range in blue; will show areas of range expansion
-  geom_rect(aes(xmin=species.rank.med-0.33, xmax=species.rank.med+0.33, ymin=both.min.perc.burn, ymax=both.max.perc.burn), fill = "#bdbdbd") + # areas common to both in grey
-  ylim(0,2200) +
-  scale_x_continuous(breaks=c(1:7), labels=labs) +
-  xlab("") +
-  #ylab("Elevation (m)") +
-  theme_bw() +
-  theme(text=element_text(size=16), panel.grid.major = element_blank(), panel.grid.minor =   element_blank())
-
-range.fig.sens <- plot_grid(p.fire.unburned, p.fire.burned, labels=c("Unburned", "Burned"))
-ggsave("figures/elevation_ranges_firespecies_sensitivity.pdf", range.fig, device="pdf", width=11, height=5)
 
 
 
