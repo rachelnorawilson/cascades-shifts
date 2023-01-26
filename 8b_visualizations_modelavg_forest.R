@@ -9,7 +9,7 @@ library(tidyverse)
 
 ## Step 1: Load coefficient data
 
-coeff.ALLDAT <- read.csv("data/3b_new_coefficients.csv", header = TRUE) %>% 
+coeff.ALLDAT <- read.csv("data/3c_new_coefficients.csv", header = TRUE) %>% 
   select(-Dataset, -L.Occ, -R.Occ, -deltaAIC, -Weight, -Rsquared)
 coeff.ALLDAT[coeff.ALLDAT$Species == "EPAN", 1] <- paste("CHAN") # Correcting taxonomy issue
 coeff.ALLDAT[is.na(coeff.ALLDAT)] <- 0 # Hard code absent coeffs as 0 before averaging
@@ -141,49 +141,4 @@ forestplot.nofire <- ggplot(dat=all.nofire, aes(y=Parameter, x=mean, xmin=lower,
 ggsave("figures/forestplot_coeffs_nofire.pdf", forestplot.nofire, width=12, height=8)
 
 
-### ALTERNATIVE: Try horizontal violin plots
 
-# Gather coefficients into long format
-coeff.fire2 <- coeff.fire %>% 
-  pivot_longer(!c(Species))
-
-order.list.fire <- c("Elevation.m", 
-                     "Elevation.m2", 
-                     "Resurvey.Burned.fi", 
-                     "Resurvey.Unburned.fi",
-                     "Elevation.m.Res.Burn.fi", 
-                     "Elevation.m.Res.Unburn.fi", 
-                     "Elevation.m2.Res.Burn.fi", 
-                     "Elevation.m2.Res.Unburn.fi")
-
-coeff.fire2$name <- factor(coeff.fire2$name, levels = rev(order.list.fire))
-
-# tick labels for y axis
-vars.fire <- c("Elevation", 
-               expression("Elevation" ^ 2), 
-               "2015, Burned",
-               "2015, Unburned",
-               "Elevation * Burned",
-               "Elevation * Unburned",
-               expression("Elevation" ^ 2 * " * Burned"), 
-               expression("Elevation" ^ 2 * " * Unburned"))
-
-# this is too scrunched - if violins are tall enough to show their shapes, then they are too tall to fit in their alloted vertical band
-temp.violin <- ggplot(data=coeff.fire2, aes(x=name, y=value)) +
-  facet_wrap(~Species) +
-  geom_violin(width=1.5) +
-  geom_hline(yintercept=0, linetype="dotted") +
-  xlab("") +
-  ylab("Predictor") +
-  scale_y_discrete(labels=rev(vars.fire)) +
-  coord_flip() + # switch X and Y axis to get the horizontal version 
-  theme_classic()
-
-temp.hist <- ggplot(data=coeff.fire2, aes(x=value)) +
-  facet_grid(name~Species, labeller=labeller(name=vars.fire)) +
-  geom_histogram(alpha=0.5) +
-  geom_vline(xintercept=0, linetype="dotted") +
-  #xlab("") +
-  #ylab("Predictor") +
-  #scale_y_discrete(labels=rev(vars.fire)) +
-  theme_classic()
