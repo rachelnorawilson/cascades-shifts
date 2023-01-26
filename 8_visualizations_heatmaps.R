@@ -21,7 +21,7 @@ library(gridExtra)
 
 ## Step 1: Loading and tidying average coefficient data
 
-coeff.ALLDAT <- read.csv("data/3b_new_coefficients.csv", header = TRUE)
+coeff.ALLDAT <- read.csv("data/3c_new_coefficients.csv", header = TRUE)
 coeff.ALLDAT[coeff.ALLDAT$Species == "EPAN", 1] <- paste("CHAN") # Correcting taxonomy issue
 coeff.fire <- 
   coeff.ALLDAT[coeff.ALLDAT$Fire.Included == "Yes" & coeff.ALLDAT$Type == "Avg",
@@ -91,7 +91,7 @@ pheatmap(mat.fire,
          fontsize_col = 10,
          angle_col = 0,
          breaks = my.breaks
-)
+) # Manually save
 
 
 ## Step 3: Look at NO FIRE data
@@ -191,7 +191,7 @@ no.fire.bot <- pheatmap(mat.nofire.bot,
 
 all.heatmaps <- list(no.fire.top[[4]], no.fire.bot[[4]])
 for.plotting <- do.call(grid.arrange, all.heatmaps)
-for.plotting
+for.plotting # Manually save
 
 
 ######### PART 2: Percentage of + vs - coefficients out of total datasets #########
@@ -259,11 +259,8 @@ pheatmap(mat.percfire.sm,
          fontsize_row = 12,
          fontsize_col = 15,
          angle_col = 0
-)
-# grid.text(rep(c("+", "-"), length(levels(as.factor((perc.fire$Species))))),
-#       x = c(0.195, 0.22, 0.25, 0.27, 0.4, 0.41, 0.5, 0.51, 0.6, 0.61, 0.7, 0.71, 0.8, 0.81),
-#      y = rep(0.82, length(levels(as.factor((perc.fire$Species))))), 
-#       gp = gpar(fontsize=15))
+) # Manually save
+
 
 ## Step 3: Look at NO FIRE data
 
@@ -358,7 +355,7 @@ nofire.perc.bot <- pheatmap(mat.percnofire.bot,
 
 all.heatmaps.perc <- list(nofire.perc.top[[4]], nofire.perc.bot[[4]])
 for.plotting.perc <- do.call(grid.arrange, all.heatmaps.perc)
-for.plotting.perc
+for.plotting.perc # Manually save
 
 
 
