@@ -28,12 +28,12 @@ prj.lcc <- "+proj=lcc +lon_0=-95 +lat_1=49 +lat_2=77 +type=crs"
 
 
 ## Plot locations
-plots <- read_csv("data/Lat.Long.csv") %>% 
+plots <- read_csv("data/0_Lat.Long.csv") %>% 
   drop_na() %>% 
   mutate(Longitude=ifelse(Longitude>0, -Longitude, Longitude)) #input file accidentally has some longitudes in E instead of W
 
 ## Plot fire history
-fire.points <- read_csv("data/All_Plots_Wildfire_Join.csv") %>% 
+fire.points <- read_csv("data/0_All_Plots_Wildfire_Join.csv") %>% 
   mutate(FireHistory = ifelse(CAL_YEAR>=1983, "Burned", "Unburned")) %>% 
   mutate(FireHistory = replace_na(FireHistory, "Unburned"))
 
