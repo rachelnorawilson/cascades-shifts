@@ -392,7 +392,7 @@ p.facet <- ggplot(rarefied.change.calcs.facet) +
   theme(text=element_text(size=16), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.text.x = element_text(angle=90, hjust=0, vjust=0.5))
 p.facet
 
-ggsave("figures/elevation_ranges_2panel.pdf", p.facet, device="pdf", width=11, height=8)
+ggsave("figures/5_elevation_ranges_2panel.pdf", p.facet, device="pdf", width=11, height=8)
 
 
 ### Probing what happens on burned vs unburned plots for fire-experiencing species
