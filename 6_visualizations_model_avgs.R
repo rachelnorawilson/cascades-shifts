@@ -9,7 +9,7 @@ library(tidyverse)
 
 # coefficients from all top models for each rarefied dataset that ran without warnings
 # these models use the poly() formulaton for orthogonal elevation^2 terms
-coeff.ALLDAT <- read.csv("data/3b_new_coefficients.csv", header = TRUE)
+coeff.ALLDAT <- read.csv("data/3c_new_coefficients.csv", header = TRUE)
 
 # filter to just model average for each rarefied dataset
 coeff.avgs <- coeff.ALLDAT %>% filter(Type=="Avg") # now we have 100 model averages per species (or, <100 for the species for which some rarefied datasets threw warnings?)
@@ -30,7 +30,7 @@ species.list.nofire <- coeffs.nofire %>%
 #### Elevation vectors for multiplying by coefficients
 
 # values in poly-transformed units
-dat <- read_csv("data/3c_transformed_polynomials.csv")
+dat <- read_csv("data/3d_transformed_polynomials.csv")
 
 # linear term vector
 # range based on min/max values 
@@ -242,19 +242,6 @@ PAMY.perc <- ggdraw(preds_graph_PAMY) #+ draw_label("3/7\n(43%)", size=12, x=.85
 VAME.perc <- ggdraw(preds_graph_VAME) #+ draw_label("2/7\n(29%)", size=12, x=.25, y=.9, hjust=0)
 ARUV.perc <- ggdraw(preds_graph_ARUV) #+ draw_label("2/7\n(29%)", size=12, x=.85, y=.9, hjust=1)
 
-# add images of focal taxa
-#library(imager)
-#library(patchwork)
-#aruv <- load.image("figures/Arctostaphylos uva ursi no bg.png") %>% plot
-
-#rasterImage(aruv, 1.5, 1.5, 1.9, 1.8)
-#ARUV_img <- ARUV.perc + inset_element(p=aruv,
-# left=.5,
-# bottom=.5,
-# right=.5,
-# top=.5)
-#ARUV_img
-
 # group subplots
 library(cowplot)
 multi <- plot_grid(legend.fire,
@@ -349,6 +336,6 @@ multi.supp.nofire.x <- ggdraw(add_sub(multi.supp.nofire, "Elevation (m)", size=1
 
 multi.supp.nofire.xy <- ggdraw(add_sub(multi.supp.nofire.x, "Probability of presence", size=18, x=0.2, y=2.5, angle=90))
 
-ggsave("figures/model_preds_suppnofire.pdf", multi.supp.nofire.xy, width=12, height=10)
+ggsave("figures/model_preds_suppnofire.pdf", multi.supp.nofire.xy, width=12, height=10) # too large to sync w Git; placeholder uploaded instead, but can be generated locally
 
 
