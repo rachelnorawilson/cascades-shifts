@@ -531,15 +531,15 @@ global.wP.ALLDAT.finaldf.nofire <-
 # Store output as CSV
 
 write.csv(coeff.ALLDAT.finaldf, 
-          file = "data/3c_top_mod_coefficients.csv", 
+          file = "data/3d_top_mod_coefficients.csv", 
           row.names = FALSE)
 
 write.csv(global.wP.ALLDAT.finaldf.fire, 
-          file = "data/3c_ORTHO_global_mod_coefficients_with_P_FIRE.csv", 
+          file = "data/3d_ORTHO_global_mod_coefficients_with_P_FIRE.csv", 
           row.names = FALSE)
 
 write.csv(global.wP.ALLDAT.finaldf.nofire, 
-          file = "data/3c_ORTHO_global_mod_coefficients_with_P_NOFIRE.csv", 
+          file = "data/3d_ORTHO_global_mod_coefficients_with_P_NOFIRE.csv", 
           row.names = FALSE)
 
 # Adding CSV of transformed vs untransformed variables - should be the same between species
@@ -550,7 +550,7 @@ transformed.df <- data.frame(Elevation.m = und.presence.SPEC$Elevation.m,
                              row.names = NULL)
 
 write.csv(transformed.df, 
-         file = "data/3c_transformed_polynomials.csv",
+         file = "data/3d_transformed_polynomials.csv",
         row.names = FALSE)
 
 
