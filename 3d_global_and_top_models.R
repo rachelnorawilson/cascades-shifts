@@ -3,6 +3,10 @@
 
 # This script will be used to undertake part d of the PRESENCE analyses (modeling)
 # Use this script to produce the top model and global model outputs
+# This script also stores all model outputs as Rda files, amounting to 300+ MB.
+# These outputs will not be stored on GitHub but can be provided upon request.
+# Users can also generate the outputs and store them locally (change directory in line 480)
+
 # NOTE: This script has been modified to use ORTHO polynomials
 
 # This script accommodates the following species-specific issues:
@@ -473,7 +477,7 @@ for(D in 1:100) { #RUN TIME: 4 min
   coeff.ALLDAT[[D]] <- ldply(coeff.ALLSPEC, data.frame)
   global.wP.ALLDAT[[D]] <- ldply(global.wP.ALLSPEC, data.frame)
   framework.ALLDAT[[D]] <- ldply(framework.ALLSPEC, data.frame)
-  save(mods.ALLSPEC, file = paste("Model_data/Model.Lists", D, "Rda", sep = "."))
+  # save(mods.ALLSPEC, file = paste("Model_data/Model.Lists", D, "Rda", sep = "."))
   
   #### END OF SPECIES LOOP
   
