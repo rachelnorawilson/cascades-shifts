@@ -551,7 +551,7 @@ transformed.df <- data.frame(Elevation.m = und.presence.SPEC$Elevation.m,
 
 write.csv(transformed.df, 
          file = "data/3d_transformed_polynomials.csv",
-        row.names = FALSE)
+        row.names = FALSE) # used later in plotting
 
 
 
