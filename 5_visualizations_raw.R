@@ -346,92 +346,12 @@ violin.plot.perc
 ggsave("figures/violin_1panel_perc.pdf", violin.plot.perc, device="pdf", width=8, height=5)
 
 
-## old versions by fire status
-violin.plot.nofire.raw <- ggplot(rarefied.change.tall.nofire.raw, aes(x=factor(edge, level=level_order.raw), y=change)) +#, color=edge, fill=edge)) + 
-  geom_violin() +
-  stat_summary(fun=mean, geom="point", cex=2)  +
-  theme_classic() +
-  geom_hline(yintercept=0, lty="dashed") +
-  xlab("") +
-  scale_x_discrete(labels=c("Lower\nedge", "Range\ncenter", "Upper\nedge")) +
-  ylim(-600,700) +
-  ylab(c("Elevational change (m)\n1983-2015")) +
-  theme(legend.position="none")
-
-violin.plot.nofire.perc <- ggplot(rarefied.change.tall.nofire.perc, aes(x=factor(edge, level=level_order.perc), y=change)) +#, color=edge, fill=edge)) + 
-  geom_violin() +
-  stat_summary(fun=mean, geom="point", cex=2)  +
-  theme_classic() +
-  geom_hline(yintercept=0, lty="dashed") +
-  xlab("") +
-  scale_x_discrete(labels=c("Lower\nedge", "Range\ncenter", "Upper\nedge")) +
-  ylim(-600,700) +
-  ylab(c("Elevational change (m)\n1983-2015")) +
-  theme(legend.position="none")
-
-violin.plot.fire.raw <- ggplot(rarefied.change.tall.fire.raw, aes(x=factor(edge, level=level_order.raw), y=change)) +#, color=edge, fill=edge)) + 
-  geom_violin() +
-  stat_summary(fun=mean, geom="point", cex=2)  +
-  theme_classic() +
-  geom_hline(yintercept=0, lty="dashed") +
-  xlab("") +
-  scale_x_discrete(labels=c("Low\nedge", "Range\ncenter", "Upper\nedge")) +
-  ylim(-600,700) +
-  ylab(c("Elevational change (m)\n1983-2015")) +
-  theme(legend.position="none")
-
-violin.plot.fire.perc <- ggplot(rarefied.change.tall.fire.perc, aes(x=factor(edge, level=level_order.perc), y=change)) +#, color=edge, fill=edge)) + 
-  geom_violin() +
-  stat_summary(fun=mean, geom="point", cex=2)  +
-  theme_classic() +
-  geom_hline(yintercept=0, lty="dashed") +
-  xlab("") +
-  scale_x_discrete(labels=c("Low\nedge", "Range\ncenter", "Upper\nedge")) +
-  ylim(-600,700) +
-  ylab(c("Elevational change (m)\n1983-2015")) +
-  theme(legend.position="none")
-
-violin.fig.raw <- plot_grid(violin.plot.nofire.raw, violin.plot.fire.raw, labels=c("A", "B"))
-violin.fig.perc <- plot_grid(violin.plot.nofire.perc, violin.plot.fire.perc, labels=c("A", "B"))
-
-ggsave("figures/violin_2panel_raw.pdf", violin.fig.raw, device="pdf", width=8, height=5)
-ggsave("figures/violin_2panel_perc.pdf", violin.fig.perc, device="pdf", width=8, height=5)
-
 
 ## Freeman-style elevation ranges
 
 rarefied.change.calcs <- read_csv("data/5_range.change.calcs.csv")
 
-# old option a: all species interdigitated regardless of fire; fire species labeled
-rarefied.change.calcs <- rarefied.change.calcs %>% 
-  mutate(species.rank.med = dense_rank(med.leg),
-         #species.rank.min = dense_rank(min.raw.leg), #doesn't work because of ties
-         #species.rank.max = dense_rank(max.raw.leg), #doesn't work because of ties
-         both.min.raw = pmax(min.raw.leg, min.raw.res),
-         both.max.raw = pmin(max.raw.leg, max.raw.res),
-         both.min.perc = pmax(min.025.leg, min.025.res),
-         both.max.perc = pmin(max.975.leg, max.975.res))
-
-fire.pos <- rarefied.change.calcs %>% 
-  filter(fire=="yes") %>% 
-  mutate(y.pos = pmax(max.975.leg, max.975.res) + 50) %>% 
-  select(species.rank.med, y.pos) %>% 
-  droplevels()
-
-p <- ggplot(rarefied.change.calcs) + 
-  geom_rect(aes(xmin=species.rank.med-0.33, xmax=species.rank.med+0.33, ymin=min.025.leg, ymax=max.975.leg), fill = "#F8766D") + # historic range in red; will show areas of range contractions
-  geom_rect(aes(xmin=species.rank.med-0.33, xmax=species.rank.med+0.33, ymin=min.025.res, ymax=max.975.res), fill = "#00BFC4") + # modern range in blue; will show areas of range expansion
-  geom_rect(aes(xmin=species.rank.med-0.33, xmax=species.rank.med+0.33, ymin=both.min.perc, ymax=both.max.perc), fill = "#bdbdbd") + # areas common to both in grey
-  scale_x_continuous("Species", breaks=c(1,10,20,30,40)) +
-  scale_y_continuous("Elevation (m)", breaks=c(0,500,1000,1500,2000)) +
-  theme_bw() +
-  theme(text=element_text(size=16), panel.grid.major = element_blank(), panel.grid.minor =   element_blank()) +
-  annotate(geom="text", x=fire.pos$species.rank.med, y=fire.pos$y.pos, label="F")
-
-ggsave("figures/elevation_ranges_1panel.pdf", p, device="pdf", width=5, height=5)
-
-
-# USE option b: fire and no-fire species separated
+# fire and no-fire species separated
 rarefied.change.calcs.fire <- rarefied.change.calcs %>% 
   filter(fire=="yes") %>% 
   mutate(species.rank.med = dense_rank(med.leg)+35, #silly workaround to get unique 4-letter species codes on fire species
