@@ -141,23 +141,23 @@ plot(burned.plots.lcc, pch=4, col="black", cex=2, add=T) #add plots that burned 
 plot(frame.grd.lcc, add=TRUE, lty="dashed", col="grey", lwd=1) #add gridlines
 dev.off()
 
-pdf(file="figures/map_fire_elev.pdf", width=10, height=8)
-plot(park.lcc, border="black") # park boundary
-plot(elev.raster.lcc, breaks=cuts, col=pal(length(cuts)-1), alpha=0.5, add=T)
-plot(park.lcc, border="black", add=T) # park boundary
-plot(fires.lcc, col=rgb(1,0,0,0.3), border="red4", add=T) 
-plot(burns.lcc, col=rgb(1,0,0,0.3), border="red4", add=T) #prescribed burns layer 
-plot(trtmts.lcc, col=rgb(1,0,0,0.3), border="red4", add=T) #prescribed burns layer
-plot(frame.grd.lcc, add=TRUE, lty="dashed", col="grey", lwd=1) #add gridlines
-dev.off()
+# pdf(file="figures/map_fire_elev.pdf", width=10, height=8)
+# plot(park.lcc, border="black") # park boundary
+# plot(elev.raster.lcc, breaks=cuts, col=pal(length(cuts)-1), alpha=0.5, add=T)
+# plot(park.lcc, border="black", add=T) # park boundary
+# plot(fires.lcc, col=rgb(1,0,0,0.3), border="red4", add=T) 
+# plot(burns.lcc, col=rgb(1,0,0,0.3), border="red4", add=T) #prescribed burns layer 
+# plot(trtmts.lcc, col=rgb(1,0,0,0.3), border="red4", add=T) #prescribed burns layer
+# plot(frame.grd.lcc, add=TRUE, lty="dashed", col="grey", lwd=1) #add gridlines
+# dev.off()
 
-pdf(file="figures/map_elev_plots.pdf", width=10, height=8)
-plot(park.lcc, border="black") # park boundary
-plot(elev.raster.lcc, breaks=cuts, col=pal(length(cuts)-1), alpha=0.5, add=T)
-plot(park.lcc, border="black", add=T) # park boundary
-plot(unburned.plots.lcc, pch=1, col="black", add=T) #add plots that didn't burn between surveys
-plot(burned.plots.lcc, pch=4, col="black", cex=2, add=T) #add plots that burned between surveys
-plot(frame.grd.lcc, add=TRUE, lty="dashed", col="grey", lwd=1) #add gridlines
-dev.off()
+# pdf(file="figures/map_elev_plots.pdf", width=10, height=8)
+# plot(park.lcc, border="black") # park boundary
+# plot(elev.raster.lcc, breaks=cuts, col=pal(length(cuts)-1), alpha=0.5, add=T)
+# plot(park.lcc, border="black", add=T) # park boundary
+# plot(unburned.plots.lcc, pch=1, col="black", add=T) #add plots that didn't burn between surveys
+# plot(burned.plots.lcc, pch=4, col="black", cex=2, add=T) #add plots that burned between surveys
+# plot(frame.grd.lcc, add=TRUE, lty="dashed", col="grey", lwd=1) #add gridlines
+# dev.off()
 
 ################################################################################
