@@ -83,7 +83,7 @@ forestplot.fire <- ggplot(dat=all.fire, aes(y=Parameter, x=mean, xmin=lower, xma
   theme(strip.background = element_rect(fill = "lightgrey", colour = "black", size = 1)) + 
   theme(legend.position = "none")
 
-ggsave("figures/forestplot_coeffs_fire.pdf", forestplot.fire, width=12, height=8)
+ggsave("figures/supp_forestplot_coeffs_fire.pdf", forestplot.fire, width=12, height=8)
 
 
 ## Step 5: Repeat steps 2-4 for no-fire species
@@ -138,7 +138,7 @@ forestplot.nofire <- ggplot(dat=all.nofire, aes(y=Parameter, x=mean, xmin=lower,
   theme(strip.background = element_rect(fill = "lightgrey", colour = "black", size = 1)) +
   theme(legend.position = "none")
 
-ggsave("figures/forestplot_coeffs_nofire.pdf", forestplot.nofire, width=12, height=8)
+ggsave("figures/supp_forestplot_coeffs_nofire.pdf", forestplot.nofire, width=12, height=8)
 
 
 
