@@ -127,11 +127,11 @@ ggplot(dot.plot, aes(x = mean.long, y = mean.lat)) +
   theme_classic()
 #legend("topleft", legend="B", bty="n") 
 #theme(panel.background=element_rect(fill="#c7eae5"))
-ggsave("figures/map_world_inset.png", width=8, height=5)
+ggsave("figures/7_map_world_inset.png", width=8, height=5)
 
 ## Zoomed in of plots
 #LCC projection
-pdf(file="figures/map_fire_plots.pdf", width=10, height=8)
+pdf(file="figures/7_map_fire_plots.pdf", width=10, height=8)
 plot(park.lcc, border="black") # park boundary
 plot(fires.lcc, col=rgb(1,0,0,0.3), border="red4", add=T) 
 plot(burns.lcc, col=rgb(1,0,0,0.3), border="red4", add=T) #prescribed burns layer 
