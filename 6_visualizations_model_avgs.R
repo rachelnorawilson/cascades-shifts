@@ -267,7 +267,8 @@ multi.x <- ggdraw(add_sub(multi.labs, "Elevation (m)", size=18, x=0.5, y=0.05, h
 
 multi.xy <- ggdraw(add_sub(multi.x, "Probability of presence", size=18, x=0.02, y=2.1, angle=90))
 
-ggsave("figures/6_model_preds_multipanel.pdf", multi.xy, width=12, height=8) # large file
+ggsave("figures/6_model_preds_multipanel.pdf", multi.xy, width=12, height=8) # too large to sync w Git; placeholder uploaded instead, but can be generated locally
+
 
 
 ### all other species for supplement
@@ -288,7 +289,8 @@ multi.supp.fire.x <- ggdraw(add_sub(multi.supp.fire, "Elevation (m)", size=18, x
 
 multi.supp.fire.xy <- ggdraw(add_sub(multi.supp.fire.x, "Probability of presence", size=18, x=0.37, y=2.1, angle=90))
 
-ggsave("figures/6_model_preds_suppfire.pdf", multi.supp.fire.xy, width=10, height=8) # large file
+ggsave("figures/6_model_preds_suppfire.pdf", multi.supp.fire.xy, width=10, height=8) # too large to sync w Git; placeholder uploaded instead, but can be generated locally
+
 
 
 multi.supp.nofire <- plot_grid(legend.nofire,
