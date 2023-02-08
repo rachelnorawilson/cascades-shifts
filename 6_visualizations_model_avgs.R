@@ -4,6 +4,7 @@
 #### This script visualizes model-averaged predictions for each rarefied dataset
 
 library(tidyverse)
+library(cowplot)
 
 #### Read in and prepare tables of coefficients
 
@@ -151,7 +152,6 @@ gg <- ggplot(graph.dat.means, aes(x = elev.vec.lin, y = preds, color = V2)) +
   theme(legend.key.size=unit(1.5, 'cm')) +
   theme(legend.text=element_text(size=14))
 
-library(cowplot)
 legend.fire = get_legend(gg)
 
 
@@ -226,7 +226,6 @@ gg <- ggplot(graph.dat.means, aes(x = elev.vec.lin, y = preds, color = V2)) +
   theme(legend.key.size=unit(1.5, 'cm')) +
   theme(legend.text=element_text(size=14))
 
-library(cowplot)
 legend.nofire = get_legend(gg)
 
 
@@ -243,7 +242,7 @@ VAME.perc <- ggdraw(preds_graph_VAME) #+ draw_label("2/7\n(29%)", size=12, x=.25
 ARUV.perc <- ggdraw(preds_graph_ARUV) #+ draw_label("2/7\n(29%)", size=12, x=.85, y=.9, hjust=1)
 
 # group subplots
-library(cowplot)
+
 multi <- plot_grid(legend.fire,
                    ARUV.perc, #up shift fire 
                    VAME.perc, #expansion fire
