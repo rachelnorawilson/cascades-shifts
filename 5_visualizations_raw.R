@@ -263,7 +263,7 @@ violin.plot.perc <- ggplot(rarefied.change.tall.perc, aes(x=factor(edge, level=l
   annotate("text", x=2.95, y=440, label="*") 
 violin.plot.perc
 
-ggsave("figures/Figure3_violin_1panel_perc.pdf", violin.plot.perc, device="pdf", width=8, height=5) 
+ggsave("figures/5_Figure3_violin_1panel_perc.pdf", violin.plot.perc, device="pdf", width=8, height=5) 
 
 
 ### FIGURE 2: Freeman-style elevation ranges
@@ -303,7 +303,7 @@ p.facet <- ggplot(rarefied.change.calcs.facet) +
   theme(text=element_text(size=16), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.text.x = element_text(angle=90, hjust=0, vjust=0.5))
 p.facet
 
-ggsave("figures/Figure2_5_elevation_ranges_2panel.pdf", p.facet, device="pdf", width=11, height=8) 
+ggsave("figures/5_Figure2_elevation_ranges_2panel.pdf", p.facet, device="pdf", width=11, height=8) 
 # Extra species names deleted and phylopic-type images added in Adobe Illustrator
 
 
