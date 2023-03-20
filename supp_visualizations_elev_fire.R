@@ -1,6 +1,7 @@
 # Created: May 10, 2021
+# Amended: Mar 20, 2023
 
-# This script will be used to create a violin plot of elevation vs fire history
+# This script will be used to create a violin plot of elevation vs fire history as seen in Figure S2
 
 # IMPORTANT NOTE: unless otherwise indicated, always use Understory_All.csv for these analyses as it is the ONLY file with up-to-date corrections.
 
@@ -23,6 +24,6 @@ violin.plot.burns <- ggplot(burn.data, aes(x = Fires, y = Elevation.m)) +
   theme(legend.position="none", text = element_text(size = 16)) +
   stat_summary(fun=mean, geom="point", cex=2)
 
-ggsave("figures/supp_elev_fire.pdf", violin.plot.burns, width=12, height=8)
+ggsave("figures/FigureS2_supp_elev_fire.pdf", violin.plot.burns, width=12, height=8)
 
 
