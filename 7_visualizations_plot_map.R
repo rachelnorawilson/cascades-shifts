@@ -2,7 +2,7 @@
 ### SCRIPT PURPOSE: plot map of NOCA plots with fire history overlain
 # Modified from Angert et al. 2018, American Naturalist
 # Author: Amy Angert
-# last update:  12 Apr 2021
+# last update:  20 Mar 2023
 
 ##################################################################################### LOAD LIBRARIES AND PREPARE INPUTS
 
@@ -55,13 +55,6 @@ unburned.plots.lcc <- spTransform(unburned.plots, CRS=CRS(prj.lcc)) #transform p
 # Define extent of study area
 ext <- extent(min(fire.plots$Longitude)-0.1, max(fire.plots$Longitude)+0.1, min(fire.plots$Latitude)-0.1, max(fire.plots$Latitude)+0.1)
 bbox <- as(ext, "SpatialPolygons") #convert coordinates to a bounding box
-
-## Elevation shading
-#elev.raster <- elevation_3s(lon=mean(fire.plots$Longitude), lat=mean(fire.plots$Latitude), path="data/shapefiles/") #download blocked because of expired authentication certificate, so downloaded manually
-#elev.raster <- raster("data/shapefiles/elevation/srtm_12_03.tif") #too huge for repo
-#elev.raster.crop <- crop(elev.raster, bbox)
-#elev.raster.lcc <- projectRaster(elev.raster.crop, crs=prj.lcc)
-write.Raster(elev.raster.lcc, "data/shapefiles/elevation/elev.raster.lcc")
 
 ## Park boundary
 park <- readOGR("data/shapefiles/park/NOCA_Park_boundary.shp")
