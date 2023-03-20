@@ -140,6 +140,7 @@ forestplot.nofire <- ggplot(dat=all.nofire, aes(y=Parameter, x=mean, xmin=lower,
   theme(legend.position = "none")
 
 ggsave("figures/FigureS8_supp_forestplot_coeffs_nofire.pdf", forestplot.nofire, width=12, height=8)
+# thumbnail sillhouettes added in Adobe Illustrator
 
 
 
