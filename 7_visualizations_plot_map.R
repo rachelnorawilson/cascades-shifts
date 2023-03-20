@@ -53,8 +53,15 @@ unburned.plots <- spTransform(unburned.plots, CRS=CRS(prj.wgs))
 unburned.plots.lcc <- spTransform(unburned.plots, CRS=CRS(prj.lcc)) #transform projection 
 
 # Define extent of study area
-ext <- extent(min(fire.plots$Longitude)-0.1, max(fire.plots$Longitude)+0.1, min(fire.plots$Latitude)-0.1, max(fire.plots$Latitude)+0.1)
+ext <- extent(min(fire.plots$Longitude)-0.5, max(fire.plots$Longitude)+0.5, min(fire.plots$Latitude)-0.5, max(fire.plots$Latitude)+0.5)
 bbox <- as(ext, "SpatialPolygons") #convert coordinates to a bounding box
+
+## USA polygons (used for lat/lon gridlines) 
+sta = readOGR("data/shapefiles/states/gz_2010_us_040_00_500k.shp")
+projection(sta) = CRS(prj.wgs)
+# Crop state lines to study area
+sta.crop <- crop(sta, bbox)
+
 
 ## Park boundary
 park <- readOGR("data/shapefiles/park/NOCA_Park_boundary.shp")
@@ -126,5 +133,5 @@ plot(unburned.plots.lcc, pch=1, col="black", add=T) #add plots that didn't burn 
 plot(burned.plots.lcc, pch=4, col="black", cex=2, add=T) #add plots that burned between surveys
 plot(frame.grd.lcc, add=TRUE, lty="dashed", col="grey", lwd=1) #add gridlines
 dev.off()
-
+# assembled with panel B in illustrator, where grid labels, scale bar, and compass rose were added
 
