@@ -156,7 +156,7 @@ el.sd.highshift.975.tall.nofire <- gather(el.highshift.sd.nofire, "species", "sd
 el.mean.lowshift.025.tall.nofire <- gather(el.lowshift.means.nofire, "species", "mean.low", 1:dim(species.list.nofire)[1])
 el.sd.lowshift.025.tall.nofire <- gather(el.lowshift.sd.nofire, "species", "sd.low", 1:dim(species.list.nofire)[1])
 
-# for plotting
+# for plotting and t-tests
 rarefied.change.nofire <- left_join(left_join(left_join(left_join(left_join(el.meds.leg.tall.nofire, el.meds.res.tall.nofire), el.mins.025.leg.tall.nofire), el.mins.025.res.tall.nofire), el.maxs.975.leg.tall.nofire), el.maxs.975.res.tall.nofire)
 rarefied.change.nofire <- cbind(rarefied.change.nofire, species.list.nofire)
 rarefied.change.nofire$fire <- "no"
@@ -178,7 +178,7 @@ el.sd.highshift.95.tall.fire <- gather(el.highshift.sd.fire, "species", "sd.high
 el.mean.lowshift.95.tall.fire <- gather(el.lowshift.means.fire, "species", "mean.low", 1:dim(species.list.fire)[1])
 el.sd.lowshift.95.tall.fire <- gather(el.lowshift.sd.fire, "species", "sd.low", 1:dim(species.list.fire)[1])
 
-# for plotting
+# for plotting and t-tests
 rarefied.change.fire <- left_join(left_join(left_join(left_join(left_join(el.meds.leg.tall.fire, el.meds.res.tall.fire), el.mins.025.leg.tall.fire), el.mins.025.res.tall.fire), el.maxs.975.leg.tall.fire), el.maxs.975.res.tall.fire)
 rarefied.change.fire <- cbind(rarefied.change.fire, species.list.fire)
 rarefied.change.fire$fire <- "yes"
