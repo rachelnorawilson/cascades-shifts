@@ -207,8 +207,9 @@ write.csv(rarefied.change.calcs, "data/5_range.change.calcs_plotting.csv")
 rarefied.change.calcs.supp <- rbind(rarefied.change.nofire.supp, rarefied.change.fire.supp)
 write.csv(rarefied.change.calcs, "data/5_range.change.calcs_supptable.csv")
 
+
 ### Statistical tests for differences between fire and no-fire species groups
-rarefied.change.calcs <- read_csv("data/5_range.change.calcs.csv")
+rarefied.change.calcs <- read_csv("data/5_range.change.calcs_plotting.csv")
 
 rear.t <- t.test(rarefied.change.calcs$rear.change.perc[rarefied.change.calcs$fire=="no"], rarefied.change.calcs$rear.change.perc[rarefied.change.calcs$fire=="yes"])
 rear.t
@@ -220,16 +221,20 @@ lead.t <- t.test(rarefied.change.calcs$lead.change.perc[rarefied.change.calcs$fi
 lead.t
 
 
-### Reshape for violin plotting
+### FIGURE 3: VIOLIN PLOTS
+
+rarefied.change.calcs <- read_csv("data/5_range.change.calcs_plotting.csv")
 
 # no-fire species
-rarefied.change.tall.nofire.perc <- rarefied.change.nofire %>% 
+rarefied.change.tall.nofire.perc <- rarefied.change.calcs %>% 
+  filter(fire=="no") %>% 
   select(rear.change.perc, med.change, lead.change.perc) %>% 
   gather("edge", "change", 1:3) %>% 
   add_column(fire="no")
 
 # fire species
-rarefied.change.tall.fire.perc <- rarefied.change.fire %>% 
+rarefied.change.tall.fire.perc <- rarefied.change.calcs %>% 
+  filter(fire=="yes") %>% 
   select(rear.change.perc, med.change, lead.change.perc) %>% 
   gather("edge", "change", 1:3) %>% 
   add_column(fire="yes")
@@ -239,10 +244,8 @@ rarefied.change.tall.perc <- bind_rows(rarefied.change.tall.nofire.perc, rarefie
 level_order.perc = c("rear.change.perc", "med.change", "lead.change.perc")
 
 # Violins by range position
-
 violin.plot.perc <- ggplot(rarefied.change.tall.perc, aes(x=factor(edge, level=level_order.perc), y=change, fill=fire)) +#, color=edge, fill=edge)) + 
   geom_violin() +
-  geom_point(aes(color=fire), position=position_jitter(seed=1, width=0.2)) +
   scale_fill_viridis(discrete=TRUE, alpha=0.7) +
   #stat_summary(fun=mean, geom="point", cex=2)  +
   theme_classic() +
@@ -260,32 +263,23 @@ violin.plot.perc <- ggplot(rarefied.change.tall.perc, aes(x=factor(edge, level=l
   annotate("text", x=2.95, y=440, label="*") 
 violin.plot.perc
 
-ggsave("figures/violin_1panel_perc.pdf", violin.plot.perc, device="pdf", width=8, height=5) # file name is correct, but doesn't match the file I see on Dropbox
+ggsave("figures/Figure3_violin_1panel_perc.pdf", violin.plot.perc, device="pdf", width=8, height=5) 
 
 
+### FIGURE 2: Freeman-style elevation ranges
 
-## Freeman-style elevation ranges
-
-rarefied.change.calcs <- read_csv("data/5_range.change.calcs.csv")
+rarefied.change.calcs <- read_csv("data/5_range.change.calcs_plotting.csv")
 
 # fire and no-fire species separated
 rarefied.change.calcs.fire <- rarefied.change.calcs %>% 
   filter(fire=="yes") %>% 
   mutate(species.rank.med = dense_rank(med.leg)+35, #silly workaround to get unique 4-letter species codes on fire species
-         #species.rank.min = dense_rank(min.raw.leg), #doesn't work because of ties
-         #species.rank.max = dense_rank(max.raw.leg), #doesn't work because of ties
-         both.min.raw = pmax(min.raw.leg, min.raw.res),
-         both.max.raw = pmin(max.raw.leg, max.raw.res),
          both.min.perc = pmax(min.025.leg, min.025.res),
          both.max.perc = pmin(max.975.leg, max.975.res))
 
 rarefied.change.calcs.nofire <- rarefied.change.calcs %>% 
   filter(fire=="no") %>% 
   mutate(species.rank.med = dense_rank(med.leg),
-         #species.rank.min = dense_rank(min.raw.leg), #doesn't work because of ties
-         #species.rank.max = dense_rank(max.raw.leg), #doesn't work because of ties
-         both.min.raw = pmax(min.raw.leg, min.raw.res),
-         both.max.raw = pmin(max.raw.leg, max.raw.res),
          both.min.perc = pmax(min.025.leg, min.025.res),
          both.max.perc = pmin(max.975.leg, max.975.res))
 
@@ -309,9 +303,8 @@ p.facet <- ggplot(rarefied.change.calcs.facet) +
   theme(text=element_text(size=16), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.text.x = element_text(angle=90, hjust=0, vjust=0.5))
 p.facet
 
-ggsave("figures/5_elevation_ranges_2panel.pdf", p.facet, device="pdf", width=11, height=8) 
+ggsave("figures/Figure2_5_elevation_ranges_2panel.pdf", p.facet, device="pdf", width=11, height=8) 
 # Extra species names deleted and phylopic-type images added in Adobe Illustrator
-
 
 
 
