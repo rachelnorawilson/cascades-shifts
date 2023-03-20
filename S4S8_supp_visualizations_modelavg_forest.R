@@ -1,6 +1,6 @@
 
 # Created: Dec. 15, 2021 from script 8
-# Updated: May 11, 2022
+# Updated: Mar 20, 2023
 
 # IMPORTANT NOTE: unless otherwise indicated, always use Understory_All.csv for these analyses as it is the ONLY file with up-to-date corrections.
 
@@ -80,10 +80,11 @@ forestplot.fire <- ggplot(dat=all.fire, aes(y=Parameter, x=mean, xmin=lower, xma
   scale_y_discrete(labels=rev(vars.fire)) +
   xlab("Estimate") +
   theme_classic() +
-  theme(strip.background = element_rect(fill = "lightgrey", colour = "black", size = 1)) + 
+  theme(strip.background = element_rect(fill = "lightgrey", colour = "black", linewidth = 1)) + 
   theme(legend.position = "none")
 
-ggsave("figures/supp_forestplot_coeffs_fire.pdf", forestplot.fire, width=12, height=8)
+ggsave("figures/FigureS4_supp_forestplot_coeffs_fire.pdf", forestplot.fire, width=12, height=8)
+# thumbnail sillhouettes added in Adobe Illustrator
 
 
 ## Step 5: Repeat steps 2-4 for no-fire species
@@ -138,7 +139,7 @@ forestplot.nofire <- ggplot(dat=all.nofire, aes(y=Parameter, x=mean, xmin=lower,
   theme(strip.background = element_rect(fill = "lightgrey", colour = "black", size = 1)) +
   theme(legend.position = "none")
 
-ggsave("figures/supp_forestplot_coeffs_nofire.pdf", forestplot.nofire, width=12, height=8)
+ggsave("figures/FigureS8_supp_forestplot_coeffs_nofire.pdf", forestplot.nofire, width=12, height=8)
 
 
 
