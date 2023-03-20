@@ -97,10 +97,6 @@ frame.grd.lcc <- spTransform(frame.grd, CRS=CRS(prj.lcc))
 gridatt <- gridat(frame.grd, side="EN")
 gridat.lcc <- spTransform(gridatt, CRS=CRS(prj.lcc))
 
-## Set up grayscale color ramp for elevation layer
-cuts=seq(0, 3000, by=500) #set breaks
-pal <- colorRampPalette(c("white","black"))
-
 ## Zoomed out inset (world)
 dot.plot <- data.frame(mean.lat=mean(plots$Latitude), mean.long=mean(plots$Longitude))
 
