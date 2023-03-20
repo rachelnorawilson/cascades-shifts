@@ -1,4 +1,4 @@
-# This script generates the flowchart seen in the supplementary material
+# This script generates the flowchart seen in the supplementary material Fig S3
 
 library(DiagrammeR)
 library(DiagrammeRsvg)
