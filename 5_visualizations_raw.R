@@ -1,13 +1,13 @@
 # Created: Feb. 16, 2021
 # Modified: Mar. 10, 2022
 
-#### This script visualizes raw (arithmetic) patterns in rarefied data; see script 6 for visualizing model outputs
+#### This script summarizes, analyzes, and visualizes raw (arithmetic) patterns in rarefied data; see script 6 for visualizing model outputs
 
 ### Load libraries
 library(tidyverse)
 library(Hmisc) #for mean_sdl function to put mean+/-SD on violin plots
 library(cowplot) #for multipanel figures
-library(viridis) #for color-blind-friendly palettes
+library(viridis) #for color-vision-friendly palettes
 
 ### Load data
 # rarefied data (as list of dataframes named rare.ALL):
@@ -32,19 +32,21 @@ species.list.fire <- read.csv("data/3c_new_coefficients.csv", header = TRUE) %>%
 species.list.nofire <- anti_join(species.list, species.list.fire)
 
 ### Set up empty matrices to store values
-el.mins.raw.leg.nofire <- matrix(nrow=100,ncol=dim(species.list.nofire)[1])
-el.mins.025.leg.nofire <- matrix(nrow=100,ncol=dim(species.list.nofire)[1])
-el.maxs.raw.leg.nofire <- matrix(nrow=100,ncol=dim(species.list.nofire)[1])
-el.maxs.975.leg.nofire <- matrix(nrow=100,ncol=dim(species.list.nofire)[1])
-el.meds.leg.nofire <- matrix(nrow=100,ncol=dim(species.list.nofire)[1])
-el.mins.raw.res.nofire <- matrix(nrow=100,ncol=dim(species.list.nofire)[1])
-el.mins.025.res.nofire <- matrix(nrow=100,ncol=dim(species.list.nofire)[1])
-el.maxs.raw.res.nofire <- matrix(nrow=100,ncol=dim(species.list.nofire)[1])
-el.maxs.975.res.nofire <- matrix(nrow=100,ncol=dim(species.list.nofire)[1])
-el.meds.res.nofire <- matrix(nrow=100,ncol=dim(species.list.nofire)[1])
-el.highshift.95.nofire <- matrix(nrow=100,ncol=dim(species.list.nofire)[1])
-el.lowshift.95.nofire <- matrix(nrow=100,ncol=dim(species.list.nofire)[1])
+# No-fire species
+el.mins.raw.leg.nofire <- matrix(nrow=100,ncol=dim(species.list.nofire)[1]) # for min elevation observed in the legacy data per species per rarefied dataset
+el.mins.025.leg.nofire <- matrix(nrow=100,ncol=dim(species.list.nofire)[1]) # for 2.5th percentile elevation observed in the legacy data per species per rarefied dataset
+el.maxs.raw.leg.nofire <- matrix(nrow=100,ncol=dim(species.list.nofire)[1]) # for max elevation observed in the legacy data per species per rarefied dataset
+el.maxs.975.leg.nofire <- matrix(nrow=100,ncol=dim(species.list.nofire)[1]) # for 97.5th percentile elevation observed in the legacy data per species per rarefied dataset
+el.meds.leg.nofire <- matrix(nrow=100,ncol=dim(species.list.nofire)[1]) # for the median elevation observed in the legacy data per species per rarefied dataset
+el.mins.raw.res.nofire <- matrix(nrow=100,ncol=dim(species.list.nofire)[1]) # for min elevation observed in the resurvey data per species per rarefied dataset
+el.mins.025.res.nofire <- matrix(nrow=100,ncol=dim(species.list.nofire)[1]) # for 2.5th percentile elevation observed in the resurvey data per species per rarefied dataset
+el.maxs.raw.res.nofire <- matrix(nrow=100,ncol=dim(species.list.nofire)[1]) # for max elevation observed in the resurvey data per species per rarefied dataset
+el.maxs.975.res.nofire <- matrix(nrow=100,ncol=dim(species.list.nofire)[1]) # for 97.5th percentile elevation observed in the resurvey data per species per rarefied dataset
+el.meds.res.nofire <- matrix(nrow=100,ncol=dim(species.list.nofire)[1]) # for the median elevation observed in the legacy data per species per rarefied dataset
+el.highshift.975.nofire <- matrix(nrow=100,ncol=dim(species.list.nofire)[1]) # for change in high edge between legacy and resurvey time points, per species per rarefied dataset
+el.lowshift.025.nofire <- matrix(nrow=100,ncol=dim(species.list.nofire)[1]) # for change in low edge between legacy and resurvey time points, per species per rarefied dataset
 
+# As above, for fire species
 el.mins.raw.leg.fire <- matrix(nrow=100,ncol=dim(species.list.fire)[1])
 el.mins.025.leg.fire <- matrix(nrow=100,ncol=dim(species.list.fire)[1])
 el.maxs.raw.leg.fire <- matrix(nrow=100,ncol=dim(species.list.fire)[1])
@@ -55,13 +57,13 @@ el.mins.025.res.fire <- matrix(nrow=100,ncol=dim(species.list.fire)[1])
 el.maxs.raw.res.fire <- matrix(nrow=100,ncol=dim(species.list.fire)[1])
 el.maxs.975.res.fire <- matrix(nrow=100,ncol=dim(species.list.fire)[1])
 el.meds.res.fire <- matrix(nrow=100,ncol=dim(species.list.fire)[1])
-el.highshift.95.fire <- matrix(nrow=100,ncol=dim(species.list.fire)[1])
-el.lowshift.95.fire <- matrix(nrow=100,ncol=dim(species.list.fire)[1])
+el.highshift.975.fire <- matrix(nrow=100,ncol=dim(species.list.fire)[1])
+el.lowshift.025.fire <- matrix(nrow=100,ncol=dim(species.list.fire)[1])
 
 ### Clunky for-loops across rarefied datasets by species
 
 ## no-fire species
-for(D in 1:100) { # Run time: 40 seconds
+for(D in 1:100) { # Run time: ~40 seconds
   und <- rare.ALL[[D]]
   und$Data.Type <- as.factor(und$Data.Type)
   und$Elevation.m <- as.numeric(und$Elevation.m)
@@ -94,13 +96,13 @@ for(D in 1:100) { # Run time: 40 seconds
     el.maxs.raw.res.nofire[D,S] <- und.presence.SPEC.res$el.max.raw.res.nofire[1]
     el.maxs.975.res.nofire[D,S] <- und.presence.SPEC.res$el.max.975.res.nofire[1]
     el.meds.res.nofire[D,S] <- und.presence.SPEC.res$el.med.res.nofire[1]
-    el.highshift.95.nofire[D,S] <- und.presence.SPEC.res$el.max.975.res.nofire[1] - und.presence.SPEC.leg$el.max.975.leg.nofire[1]
-    el.lowshift.95.nofire[D,S] <- und.presence.SPEC.res$el.min.025.res.nofire[1] - und.presence.SPEC.leg$el.min.025.leg.nofire[1]
+    el.highshift.975.nofire[D,S] <- und.presence.SPEC.res$el.max.975.res.nofire[1] - und.presence.SPEC.leg$el.max.975.leg.nofire[1]
+    el.lowshift.025.nofire[D,S] <- und.presence.SPEC.res$el.min.025.res.nofire[1] - und.presence.SPEC.leg$el.min.025.leg.nofire[1]
   }
 }
 
 ## fire species
-for(D in 1:100) { #Run time: 10 seconds
+for(D in 1:100) { #Run time: ~10 seconds
   und <- rare.ALL[[D]]
   und$Data.Type <- as.factor(und$Data.Type)
   und$Elevation.m <- as.numeric(und$Elevation.m)
@@ -118,7 +120,6 @@ for(D in 1:100) { #Run time: 10 seconds
              el.max.975.leg.fire = quantile(Elevation.m, probs=0.975))
     und.presence.SPEC.res <- und.SPEC %>% 
       filter(Data.Type=="Resurvey" & Pres.Abs==1) %>% 
-      #filter(Fires=="Unburned") %>% #temporary toggle %>% 
       mutate(el.min.raw.res.fire = min(Elevation.m),
              el.max.raw.res.fire = max(Elevation.m),
              el.med.res.fire = median(Elevation.m),
@@ -134,12 +135,12 @@ for(D in 1:100) { #Run time: 10 seconds
     el.maxs.raw.res.fire[D,S] <- und.presence.SPEC.res$el.max.raw.res.fire[1]
     el.maxs.975.res.fire[D,S] <- und.presence.SPEC.res$el.max.975.res.fire[1]
     el.meds.res.fire[D,S] <- und.presence.SPEC.res$el.med.res.fire[1]
-    el.highshift.95.fire[D,S] <- und.presence.SPEC.res$el.max.975.res.fire[1] - und.presence.SPEC.leg$el.max.975.leg.fire[1]
-    el.lowshift.95.fire[D,S] <- und.presence.SPEC.res$el.min.025.res.fire[1] - und.presence.SPEC.leg$el.min.025.leg.fire[1]
+    el.highshift.975.fire[D,S] <- und.presence.SPEC.res$el.max.975.res.fire[1] - und.presence.SPEC.leg$el.max.975.leg.fire[1]
+    el.lowshift.025.fire[D,S] <- und.presence.SPEC.res$el.min.025.res.fire[1] - und.presence.SPEC.leg$el.min.025.leg.fire[1]
   }
 }
 
-## collapse to averages across rarefied replicates
+## collapse to means across rarefied replicates
 
 # no-fire species
 el.mins.raw.leg.means.nofire <- as.data.frame(el.mins.raw.leg.nofire) %>% summarise(across(starts_with("V"),mean)) 
@@ -152,10 +153,10 @@ el.maxs.raw.res.means.nofire <- as.data.frame(el.maxs.raw.res.nofire) %>% summar
 el.maxs.975.res.means.nofire <- as.data.frame(el.maxs.975.res.nofire) %>% summarise(across(starts_with("V"),mean))
 el.meds.leg.means.nofire <- as.data.frame(el.meds.leg.nofire) %>% summarise(across(starts_with("V"),mean))
 el.meds.res.means.nofire <- as.data.frame(el.meds.res.nofire) %>% summarise(across(starts_with("V"),mean))
-el.highshift.means.nofire <- as.data.frame(el.highshift.95.nofire) %>% summarise(across(starts_with("V"),mean))
-el.highshift.sd.nofire <- as.data.frame(el.highshift.95.nofire) %>% summarise(across(starts_with("V"),sd))
-el.lowshift.means.nofire <- as.data.frame(el.lowshift.95.nofire) %>% summarise(across(starts_with("V"),mean))
-el.lowshift.sd.nofire <- as.data.frame(el.lowshift.95.nofire) %>% summarise(across(starts_with("V"),sd))
+el.highshift.means.nofire <- as.data.frame(el.highshift.975.nofire) %>% summarise(across(starts_with("V"),mean))
+el.highshift.sd.nofire <- as.data.frame(el.highshift.975.nofire) %>% summarise(across(starts_with("V"),sd))
+el.lowshift.means.nofire <- as.data.frame(el.lowshift.025.nofire) %>% summarise(across(starts_with("V"),mean))
+el.lowshift.sd.nofire <- as.data.frame(el.lowshift.025.nofire) %>% summarise(across(starts_with("V"),sd))
 
 # fire species
 el.mins.raw.leg.means.fire <- as.data.frame(el.mins.raw.leg.fire) %>% summarise(across(starts_with("V"),mean))
@@ -168,10 +169,10 @@ el.maxs.raw.res.means.fire <- as.data.frame(el.maxs.raw.res.fire) %>% summarise(
 el.maxs.975.res.means.fire <- as.data.frame(el.maxs.975.res.fire) %>% summarise(across(starts_with("V"),mean))
 el.meds.leg.means.fire <- as.data.frame(el.meds.leg.fire) %>% summarise(across(starts_with("V"),mean))
 el.meds.res.means.fire <- as.data.frame(el.meds.res.fire) %>% summarise(across(starts_with("V"),mean))
-el.highshift.means.fire <- as.data.frame(el.highshift.95.fire) %>% summarise(across(starts_with("V"),mean))
-el.highshift.sd.fire <- as.data.frame(el.highshift.95.fire) %>% summarise(across(starts_with("V"),sd))
-el.lowshift.means.fire <- as.data.frame(el.lowshift.95.fire) %>% summarise(across(starts_with("V"),mean))
-el.lowshift.sd.fire <- as.data.frame(el.lowshift.95.fire) %>% summarise(across(starts_with("V"),sd))
+el.highshift.means.fire <- as.data.frame(el.highshift.975.fire) %>% summarise(across(starts_with("V"),mean))
+el.highshift.sd.fire <- as.data.frame(el.highshift.975.fire) %>% summarise(across(starts_with("V"),sd))
+el.lowshift.means.fire <- as.data.frame(el.lowshift.025.fire) %>% summarise(across(starts_with("V"),mean))
+el.lowshift.sd.fire <- as.data.frame(el.lowshift.025.fire) %>% summarise(across(starts_with("V"),sd))
 
 ## reshape and join into one frame
 
@@ -186,20 +187,20 @@ el.maxs.raw.res.tall.nofire <- gather(el.maxs.raw.res.means.nofire, "species", "
 el.maxs.975.res.tall.nofire <- gather(el.maxs.975.res.means.nofire, "species", "max.975.res", 1:dim(species.list.nofire)[1])
 el.meds.leg.tall.nofire <- gather(el.meds.leg.means.nofire, "species", "med.leg", 1:dim(species.list.nofire)[1])
 el.meds.res.tall.nofire <- gather(el.meds.res.means.nofire, "species", "med.res", 1:dim(species.list.nofire)[1])
-el.mean.highshift.95.tall.nofire <- gather(el.highshift.means.nofire, "species", "mean.high", 1:dim(species.list.nofire)[1])
-el.sd.highshift.95.tall.nofire <- gather(el.highshift.sd.nofire, "species", "sd.high", 1:dim(species.list.nofire)[1])
-el.mean.lowshift.95.tall.nofire <- gather(el.lowshift.means.nofire, "species", "mean.low", 1:dim(species.list.nofire)[1])
-el.sd.lowshift.95.tall.nofire <- gather(el.lowshift.sd.nofire, "species", "sd.low", 1:dim(species.list.nofire)[1])
+el.mean.highshift.975.tall.nofire <- gather(el.highshift.means.nofire, "species", "mean.high", 1:dim(species.list.nofire)[1])
+el.sd.highshift.975.tall.nofire <- gather(el.highshift.sd.nofire, "species", "sd.high", 1:dim(species.list.nofire)[1])
+el.mean.lowshift.025.tall.nofire <- gather(el.lowshift.means.nofire, "species", "mean.low", 1:dim(species.list.nofire)[1])
+el.sd.lowshift.025.tall.nofire <- gather(el.lowshift.sd.nofire, "species", "sd.low", 1:dim(species.list.nofire)[1])
 
 rarefied.change.nofire <- left_join(left_join(left_join(left_join(left_join(left_join(left_join(left_join(left_join(el.mins.raw.leg.tall.nofire, el.mins.raw.res.tall.nofire),el.maxs.raw.leg.tall.nofire), el.maxs.raw.res.tall.nofire), el.meds.leg.tall.nofire), el.meds.res.tall.nofire), el.mins.025.leg.tall.nofire), el.mins.025.res.tall.nofire), el.maxs.975.leg.tall.nofire), el.maxs.975.res.tall.nofire)
 
-rarefied.change.nofire.update <- left_join(left_join(left_join(el.mean.highshift.95.tall.nofire, el.sd.highshift.95.tall.nofire),el.mean.lowshift.95.tall.nofire), el.sd.lowshift.95.tall.nofire)
+#rarefied.change.nofire.update <- left_join(left_join(left_join(el.mean.highshift.975.tall.nofire, el.sd.highshift.975.tall.nofire),el.mean.lowshift.025.tall.nofire), el.sd.lowshift.025.tall.nofire)
 
 rarefied.change.nofire <- cbind(rarefied.change.nofire, species.list.nofire)
 rarefied.change.nofire$fire <- "no"
 
-rarefied.change.nofire.update <- cbind(rarefied.change.nofire.update, species.list.nofire)
-rarefied.change.nofire.update$fire <- "no"
+#rarefied.change.nofire.update <- cbind(rarefied.change.nofire.update, species.list.nofire)
+#rarefied.change.nofire.update$fire <- "no"
 
 # fire species
 el.mins.raw.leg.tall.fire <- gather(el.mins.raw.leg.means.fire, "species", "min.raw.leg", 1:dim(species.list.fire)[1])
@@ -212,21 +213,21 @@ el.maxs.raw.res.tall.fire <- gather(el.maxs.raw.res.means.fire, "species", "max.
 el.maxs.975.res.tall.fire <- gather(el.maxs.975.res.means.fire, "species", "max.975.res", 1:dim(species.list.fire)[1])
 el.meds.leg.tall.fire <- gather(el.meds.leg.means.fire, "species", "med.leg", 1:dim(species.list.fire)[1])
 el.meds.res.tall.fire <- gather(el.meds.res.means.fire, "species", "med.res", 1:dim(species.list.fire)[1])
-el.mean.highshift.95.tall.fire <- gather(el.highshift.means.fire, "species", "mean.high", 1:dim(species.list.fire)[1])
-el.sd.highshift.95.tall.fire <- gather(el.highshift.sd.fire, "species", "sd.high", 1:dim(species.list.fire)[1])
-el.mean.lowshift.95.tall.fire <- gather(el.lowshift.means.fire, "species", "mean.low", 1:dim(species.list.fire)[1])
-el.sd.lowshift.95.tall.fire <- gather(el.lowshift.sd.fire, "species", "sd.low", 1:dim(species.list.fire)[1])
+#el.mean.highshift.95.tall.fire <- gather(el.highshift.means.fire, "species", "mean.high", 1:dim(species.list.fire)[1])
+#el.sd.highshift.95.tall.fire <- gather(el.highshift.sd.fire, "species", "sd.high", 1:dim(species.list.fire)[1])
+#el.mean.lowshift.95.tall.fire <- gather(el.lowshift.means.fire, "species", "mean.low", 1:dim(species.list.fire)[1])
+#el.sd.lowshift.95.tall.fire <- gather(el.lowshift.sd.fire, "species", "sd.low", 1:dim(species.list.fire)[1])
 
 rarefied.change.fire <- left_join(left_join(left_join(left_join(left_join(left_join(left_join(left_join(left_join(el.mins.raw.leg.tall.fire, el.mins.raw.res.tall.fire),el.maxs.raw.leg.tall.fire), el.maxs.raw.res.tall.fire), el.meds.leg.tall.fire), el.meds.res.tall.fire), el.mins.025.leg.tall.fire), el.mins.025.res.tall.fire), el.maxs.975.leg.tall.fire), el.maxs.975.res.tall.fire)
 
 
-rarefied.change.fire.update <- left_join(left_join(left_join(el.mean.highshift.95.tall.fire, el.sd.highshift.95.tall.fire),el.mean.lowshift.95.tall.fire), el.sd.lowshift.95.tall.fire)
+#rarefied.change.fire.update <- left_join(left_join(left_join(el.mean.highshift.95.tall.fire, el.sd.highshift.95.tall.fire),el.mean.lowshift.95.tall.fire), el.sd.lowshift.95.tall.fire)
 
 rarefied.change.fire <- cbind(rarefied.change.fire, species.list.fire)
 rarefied.change.fire$fire <- "yes"
 
-rarefied.change.fire.update <- cbind(rarefied.change.fire.update, species.list.fire)
-rarefied.change.fire.update$fire <- "yes"
+#rarefied.change.fire.update <- cbind(rarefied.change.fire.update, species.list.fire)
+#rarefied.change.fire.update$fire <- "yes"
 
 ## calculate range changes
 # no-fires species
@@ -235,8 +236,7 @@ rarefied.change.nofire <- rarefied.change.nofire %>%
          rear.change.perc = min.025.res - min.025.leg,
          med.change = med.res - med.leg,
          lead.change.raw = max.raw.res - max.raw.leg,
-         lead.change.perc = max.975.res - max.975.leg)#,
-#span.change = (max.res-min.res) - (max.leg - min.leg))
+         lead.change.perc = max.975.res - max.975.leg)
 
 # fire species
 rarefied.change.fire <- rarefied.change.fire %>% 
@@ -244,14 +244,12 @@ rarefied.change.fire <- rarefied.change.fire %>%
          rear.change.perc = min.025.res - min.025.leg,
          med.change = med.res - med.leg,
          lead.change.raw = max.raw.res - max.raw.leg,
-         lead.change.perc = max.975.res - max.975.leg)#,
-#span.change = (max.res-min.res) - (max.leg - min.leg))
+         lead.change.perc = max.975.res - max.975.leg)
 
 rarefied.change.calcs <- rbind(rarefied.change.nofire, rarefied.change.fire)
 write.csv(rarefied.change.calcs, "data/5_range.change.calcs.csv")
 
-rarefied.change.calcs.update <- rbind(rarefied.change.nofire.update, rarefied.change.fire.update)
-write.csv(rarefied.change.calcs.update, "data/5_range.change.calcs.update.csv")
+#rarefied.change.calcs.update <- rbind(rarefied.change.nofire.update, rarefied.change.fire.update)
 
 ### Statistical tests for differences between fire and no-fire species groups
 rarefied.change.calcs <- read_csv("data/5_range.change.calcs.csv")
