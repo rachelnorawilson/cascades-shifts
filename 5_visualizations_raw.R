@@ -1,7 +1,7 @@
 # Created: Feb. 16, 2021
 # Modified: Mar. 10, 2022
 
-#### This script summarizes, analyzes, and visualizes raw (arithmetic) patterns in rarefied data; see script 6 for visualizing model outputs
+#### This script summarizes, analyzes, and visualizes arithmetic patterns in rarefied data; see script 6 for visualizing model outputs
 
 ### Load libraries
 library(tidyverse)
