@@ -1,5 +1,5 @@
 # Created: Apr. 15, 2020
-# Updated: June 18, 2022
+# Updated: Mar 20, 2023
 
 # This script will be used to create 4 heatmaps:
 # --> PART 1: The model-averaged coefficients
@@ -91,7 +91,7 @@ pheatmap(mat.fire,
          fontsize_col = 10,
          angle_col = 0,
          breaks = my.breaks
-) # Manually save
+) # Manually save --> Figure S5
 
 
 ## Step 3: Look at NO FIRE data
@@ -191,16 +191,16 @@ no.fire.bot <- pheatmap(mat.nofire.bot,
 
 all.heatmaps <- list(no.fire.top[[4]], no.fire.bot[[4]])
 for.plotting <- do.call(grid.arrange, all.heatmaps)
-for.plotting # Manually save
+for.plotting # Manually save --> Figure S9
 
 
 ######### PART 2: Percentage of + vs - coefficients out of total datasets #########
 
 ## Step 1: Loading data
 
-perc.fire <- read.csv("data/4_pres_coefficients_percent_fire.csv", header = TRUE)
+perc.fire <- read.csv("data/4a_pres_coefficients_percent_fire.csv", header = TRUE)
 perc.fire[perc.fire$Species == "EPAN", 1] <- paste("CHAN") # Correcting taxonomy issue
-perc.nofire <- read.csv("data/4_pres_coefficients_percent_NOfire.csv", header = TRUE)
+perc.nofire <- read.csv("data/4a_pres_coefficients_percent_NOfire.csv", header = TRUE)
 
 ## Step 2: Look at FIRE data
 
@@ -259,7 +259,7 @@ pheatmap(mat.percfire.sm,
          fontsize_row = 12,
          fontsize_col = 15,
          angle_col = 0
-) # Manually save
+) # Manually save --> Figure S6
 
 
 ## Step 3: Look at NO FIRE data
@@ -355,7 +355,7 @@ nofire.perc.bot <- pheatmap(mat.percnofire.bot,
 
 all.heatmaps.perc <- list(nofire.perc.top[[4]], nofire.perc.bot[[4]])
 for.plotting.perc <- do.call(grid.arrange, all.heatmaps.perc)
-for.plotting.perc # Manually save
+for.plotting.perc # Manually save --> Figure S10
 
 
 
