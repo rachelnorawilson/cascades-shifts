@@ -105,22 +105,19 @@ map_world <- borders("world", colour="black", fill="grey")
 ggplot(dot.plot, aes(x = mean.long, y = mean.lat)) +
   map_world +
   geom_star(size=5, pch=21, fill="black") +
-  #scale_colour_manual(values=siteColors) +
   coord_map(projection="ortho", orientation=c(48,-121,0)) +
-  #scale_shape_manual(values = c(4, 24, 25)) +
-  labs(x = "Longitude") +
-  labs(y = "Latitude") +
-  ggtitle("B") +
+  #labs(x = "Longitude") +
+  #labs(y = "Latitude") +
+  #ggtitle("B") +
   theme(axis.ticks.y = element_blank(), 
         axis.text.y = element_blank()) +
   theme_classic()
-#legend("topleft", legend="B", bty="n") 
-#theme(panel.background=element_rect(fill="#c7eae5"))
-ggsave("figures/7_map_world_inset.png", width=8, height=5)
+ggsave("figures/7_Figure1B_map_world_inset.png", width=8, height=5)
+# assembled with panel A in illustrator, where panel labels were added
 
 ## Zoomed in of plots
 #LCC projection
-pdf(file="figures/7_map_fire_plots.pdf", width=10, height=8)
+pdf(file="figures/7_Figure1A_map_fire_plots.pdf", width=10, height=8)
 plot(park.lcc, border="black") # park boundary
 plot(fires.lcc, col=rgb(1,0,0,0.3), border="red4", add=T) 
 plot(burns.lcc, col=rgb(1,0,0,0.3), border="red4", add=T) #prescribed burns layer 
@@ -130,23 +127,4 @@ plot(burned.plots.lcc, pch=4, col="black", cex=2, add=T) #add plots that burned 
 plot(frame.grd.lcc, add=TRUE, lty="dashed", col="grey", lwd=1) #add gridlines
 dev.off()
 
-# pdf(file="figures/map_fire_elev.pdf", width=10, height=8)
-# plot(park.lcc, border="black") # park boundary
-# plot(elev.raster.lcc, breaks=cuts, col=pal(length(cuts)-1), alpha=0.5, add=T)
-# plot(park.lcc, border="black", add=T) # park boundary
-# plot(fires.lcc, col=rgb(1,0,0,0.3), border="red4", add=T) 
-# plot(burns.lcc, col=rgb(1,0,0,0.3), border="red4", add=T) #prescribed burns layer 
-# plot(trtmts.lcc, col=rgb(1,0,0,0.3), border="red4", add=T) #prescribed burns layer
-# plot(frame.grd.lcc, add=TRUE, lty="dashed", col="grey", lwd=1) #add gridlines
-# dev.off()
 
-# pdf(file="figures/map_elev_plots.pdf", width=10, height=8)
-# plot(park.lcc, border="black") # park boundary
-# plot(elev.raster.lcc, breaks=cuts, col=pal(length(cuts)-1), alpha=0.5, add=T)
-# plot(park.lcc, border="black", add=T) # park boundary
-# plot(unburned.plots.lcc, pch=1, col="black", add=T) #add plots that didn't burn between surveys
-# plot(burned.plots.lcc, pch=4, col="black", cex=2, add=T) #add plots that burned between surveys
-# plot(frame.grd.lcc, add=TRUE, lty="dashed", col="grey", lwd=1) #add gridlines
-# dev.off()
-
-################################################################################
