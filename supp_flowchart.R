@@ -61,7 +61,7 @@ setwd("figures") # For some reason, can't specify this in file name
 export_svg(flowchart) %>%
   charToRaw() %>%
   rsvg() %>%
-  png::writePNG("supp_flowchart.png")
+  png::writePNG("FigureS3_supp_flowchart.png")
 
 
 
