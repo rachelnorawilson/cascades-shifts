@@ -45,23 +45,24 @@ MAT <- ggplot(annual.sub, aes(x=Year, y=MAT, by=ID1)) +
   theme_classic() +
   ggtitle("A")
 
-Twin <- ggplot(seasonal.sub, aes(x=Year, y=Tmax_wt, by=ID1)) +
-  geom_line(aes(x=Year, y=Tmax_wt, color=Elevation.m)) +
-  geom_point(aes(x=Year, y=Tmax_wt, color=Elevation.m), data=seasonal.sub.survey, cex=2) +
-  scale_color_gradient(low="red", high="blue", name="Elevation (m)") +
-  ylab("Winter max temperature (\u00B0C)") +
-  xlab("Year") +
-  theme_classic() +
-  ggtitle("B")
-
 Tsum <- ggplot(seasonal.sub, aes(x=Year, y=Tmax_sm, by=ID1)) +
   geom_line(aes(x=Year, y=Tmax_sm, color=Elevation.m)) +
   geom_point(aes(x=Year, y=Tmax_sm, color=Elevation.m), data=seasonal.sub.survey, cex=2) +
   scale_color_gradient(low="red", high="blue", name="Elevation (m)") +
-  ylab("Summer max temperature (\u00B0C)") +
+  ylab("Summer maximum temperature (\u00B0C)") +
+  xlab("Year") +
+  theme_classic() +
+  ggtitle("B")
+
+Twin <- ggplot(seasonal.sub, aes(x=Year, y=Tmax_wt, by=ID1)) +
+  geom_line(aes(x=Year, y=Tmax_wt, color=Elevation.m)) +
+  geom_point(aes(x=Year, y=Tmax_wt, color=Elevation.m), data=seasonal.sub.survey, cex=2) +
+  scale_color_gradient(low="red", high="blue", name="Elevation (m)") +
+  ylab("Winter maximum temperature (\u00B0C)") +
   xlab("Year") +
   theme_classic() +
   ggtitle("C")
+
 
 MAP <- ggplot(annual.sub, aes(x=Year, y=MAP, by=ID1)) +
   geom_line(aes(x=Year, y=MAP, color=Elevation.m)) +
