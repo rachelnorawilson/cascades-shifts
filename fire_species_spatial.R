@@ -47,17 +47,96 @@ dat.all <- bind_rows(dat.leg, dat.res) %>% # this now has plot locations and plo
 
 dat.pres <- filter(dat.all, Pres.Abs==1)
 
-ACMI <- filter(dat.pres, Species.Code=="ACMI")
 
 ### Set up maps
+
+# Define projections
 prj.wgs <- "+proj=longlat + type=crs"
 prj.lcc <- "+proj=lcc +lon_0=-95 +lat_1=49 +lat_2=77 +type=crs"
 
+# Transform to spatial data
 coordinates(dat.pres) <- ~Longitude+Latitude #convert to spatial data
 projection(dat.pres) <- CRS('+proj=longlat') #define projection
 dat.pres <- spTransform(dat.pres, CRS=CRS(prj.wgs)) #transform projection 
 dat.pres.lcc <- spTransform(dat.pres, CRS=CRS(prj.lcc)) #transform projection 
 
-plot(subset(dat.pres, Species.Code=="ACMI"))
-plot(subset(dat.pres, Species.Code=="ARUV"))
-plot(subset(dat.pres, Species.Code=="VAME"))
+# Define extent of study area
+ext <- extent(min(dat.pres$Longitude)-0.5, max(dat.pres$Longitude)+0.5, min(dat.pres$Latitude)-0.5, max(dat.pres$Latitude)+0.5)
+bbox <- as(ext, "SpatialPolygons") #convert coordinates to a bounding box
+
+# USA polygons (used for lat/lon gridlines) 
+sta = readOGR("data/shapefiles/states/gz_2010_us_040_00_500k.shp")
+projection(sta) = CRS(prj.wgs)
+# Crop state lines to study area
+sta.crop <- crop(sta, bbox)
+
+# Park boundary
+park <- readOGR("data/shapefiles/park/NOCA_Park_boundary.shp")
+park <- spTransform(park, CRS=CRS(prj.wgs))
+park.lcc <- spTransform(park, CRS=CRS(prj.lcc))
+
+# Wildfire polygons
+fires <- readOGR("data/shapefiles/fires/NOCA_Wildfire_History.shp")
+fires <- spTransform(fires, CRS=CRS(prj.wgs))
+fires <- st_as_sf(fires) %>% 
+  filter(CAL_YEAR>=1983)
+fires.sp <- as(fires, "Spatial")
+fires.lcc <- spTransform(fires.sp, CRS=CRS(prj.lcc))
+
+# Prescribed burn polygons
+burns <- readOGR("data/shapefiles/fires/Prescribed_burn_history.shp")
+burns <- spTransform(burns, CRS=CRS(prj.wgs))
+burns <- st_as_sf(burns) %>% 
+  filter(CAL_YEAR>=1983)
+burns.sp <- as(burns, "Spatial")
+burns.lcc <- spTransform(burns.sp, CRS=CRS(prj.lcc))
+
+# Fire treatment polygons (how are these different from prescribed burns?)
+trtmts <- readOGR("data/shapefiles/fires/Fire_treatment_history.shp")
+trtmts <- spTransform(trtmts, CRS=CRS(prj.wgs))
+trtmts <- st_as_sf(trtmts) %>% 
+  filter(TreatYear>=1983)
+trtmts.sp <- as(trtmts, "Spatial")
+trtmts.lcc <- spTransform(trtmts.sp, CRS=CRS(prj.lcc))
+
+# Set up gridlines & lat/lon labels	
+frame.grd <- gridlines(sta.crop)
+frame.grd.lcc <- spTransform(frame.grd, CRS=CRS(prj.lcc))
+gridatt <- gridat(frame.grd, side="EN")
+gridat.lcc <- spTransform(gridatt, CRS=CRS(prj.lcc))
+
+
+### Maps of fire-experiencing species
+
+# ACMI
+#pdf(file="figures/map_ACMI_plots.pdf", width=10, height=8)
+plot(park.lcc, border="black") # park boundary
+plot(fires.lcc, col=rgb(1,0,0,0.3), border="red4", add=T) # wildfire polygons
+plot(burns.lcc, col=rgb(1,0.7,0,0.3), border="orange", add=T) # prescribed burns polygons 
+plot(trtmts.lcc, col=rgb(1,0.7,0,0.3), border="orange", add=T) # fire treatments polygons
+plot(subset(dat.pres.lcc, Species.Code=="ACMI" & Data.Type=="Legacy"), pch=1, cex=1.5, col="black", add=T) # historical presences of ACMI
+plot(subset(dat.pres.lcc, Species.Code=="ACMI"& Data.Type=="Resurvey"), pch=4, cex=1.5, col="black", add=T) # contemporary presences of ACMI
+plot(frame.grd.lcc, add=TRUE, lty="dashed", col="grey", lwd=1) # gridlines
+#dev.off()
+
+# ARUV
+#pdf(file="figures/map_ACMI_plots.pdf", width=10, height=8)
+plot(park.lcc, border="black") # park boundary
+plot(fires.lcc, col=rgb(1,0,0,0.3), border="red4", add=T) # wildfire polygons
+plot(burns.lcc, col=rgb(1,0.7,0,0.3), border="orange", add=T) # prescribed burns polygons 
+plot(trtmts.lcc, col=rgb(1,0.7,0,0.3), border="orange", add=T) # fire treatments polygons
+plot(subset(dat.pres.lcc, Species.Code=="ARUV" & Data.Type=="Legacy"), pch=1, cex=1.5, col="black", add=T) # historical presences of ARUV
+plot(subset(dat.pres.lcc, Species.Code=="ARUV"& Data.Type=="Resurvey"), pch=4, cex=1.5, col="black", add=T) # contemporary presences of ARUV
+plot(frame.grd.lcc, add=TRUE, lty="dashed", col="grey", lwd=1) # gridlines
+#dev.off()
+
+# VAME
+#pdf(file="figures/map_ACMI_plots.pdf", width=10, height=8)
+plot(park.lcc, border="black") # park boundary
+plot(fires.lcc, col=rgb(1,0,0,0.3), border="red4", add=T) # wildfire polygons
+plot(burns.lcc, col=rgb(1,0.7,0,0.3), border="orange", add=T) # prescribed burns polygons 
+plot(trtmts.lcc, col=rgb(1,0.7,0,0.3), border="orange", add=T) # fire treatments polygons
+plot(subset(dat.pres.lcc, Species.Code=="VAME" & Data.Type=="Legacy"), pch=1, cex=1.5, col="black", add=T) # historical presences of VAME
+plot(subset(dat.pres.lcc, Species.Code=="VAME"& Data.Type=="Resurvey"), pch=4, cex=1.5, col="black", add=T) # contemporary presences of VAME
+plot(frame.grd.lcc, add=TRUE, lty="dashed", col="grey", lwd=1) # gridlines
+#dev.off()
