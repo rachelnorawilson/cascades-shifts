@@ -61,7 +61,7 @@ dat.pres <- spTransform(dat.pres, CRS=CRS(prj.wgs)) #transform projection
 dat.pres.lcc <- spTransform(dat.pres, CRS=CRS(prj.lcc)) #transform projection 
 
 # Define extent of study area
-ext <- extent(min(dat.pres$Longitude)-0.5, max(dat.pres$Longitude)+0.5, min(dat.pres$Latitude)-0.5, max(dat.pres$Latitude)+0.5)
+ext <- extent(min(dat.pres$Longitude)-0.25, max(dat.pres$Longitude)+0.5, min(dat.pres$Latitude)-0.5, max(dat.pres$Latitude)+0.25)
 bbox <- as(ext, "SpatialPolygons") #convert coordinates to a bounding box
 
 # USA polygons (used for lat/lon gridlines) 
@@ -99,8 +99,14 @@ trtmts <- st_as_sf(trtmts) %>%
 trtmts.sp <- as(trtmts, "Spatial")
 trtmts.lcc <- spTransform(trtmts.sp, CRS=CRS(prj.lcc))
 
+# Ecoregions polygons
+ecoreg <- readOGR("data/shapefiles/Ecoregions_of_the_Pacific_Northwest/Ecoregions_of_the_Pacific_Northwest.shp")
+ecoreg <- spTransform(ecoreg, CRS=CRS(prj.wgs))
+ecoreg.crop <- crop(ecoreg, bbox)
+ecoreg.crop.lcc <- spTransform(ecoreg.crop, CRS=CRS(prj.lcc))
+
 # Set up gridlines & lat/lon labels	
-frame.grd <- gridlines(sta.crop)
+frame.grd <- gridlines(ecoreg.crop)
 frame.grd.lcc <- spTransform(frame.grd, CRS=CRS(prj.lcc))
 gridatt <- gridat(frame.grd, side="EN")
 gridat.lcc <- spTransform(gridatt, CRS=CRS(prj.lcc))
@@ -109,79 +115,86 @@ gridat.lcc <- spTransform(gridatt, CRS=CRS(prj.lcc))
 ### Maps of fire-experiencing species
 
 # ACMI
-#pdf(file="figures/map_ACMI_plots.pdf", width=10, height=8)
+pdf(file="figures/map_ACMI_plots.pdf", width=10, height=8)
 plot(park.lcc, border="black") # park boundary
+plot(ecoreg.crop.lcc, col=rgb(.5,0.8,1,0.3), border="blue", add=T) # ecoregions polygons
 plot(fires.lcc, col=rgb(1,0,0,0.3), border="red4", add=T) # wildfire polygons
 plot(burns.lcc, col=rgb(1,0.7,0,0.3), border="orange", add=T) # prescribed burns polygons 
 plot(trtmts.lcc, col=rgb(1,0.7,0,0.3), border="orange", add=T) # fire treatments polygons
-plot(subset(dat.pres.lcc, Species.Code=="ACMI" & Data.Type=="Legacy"), pch=1, cex=1.5, col="black", add=T) # historical presences of ACMI
-plot(subset(dat.pres.lcc, Species.Code=="ACMI"& Data.Type=="Resurvey"), pch=4, cex=1.5, col="black", add=T) # contemporary presences of ACMI
+plot(subset(dat.pres.lcc, Species.Code=="ACMI" & Data.Type=="Legacy"), pch=1, cex=1, col="black", add=T) # historical presences of ACMI
+plot(subset(dat.pres.lcc, Species.Code=="ACMI"& Data.Type=="Resurvey"), pch=4, cex=1, col="black", add=T) # contemporary presences of ACMI
 plot(frame.grd.lcc, add=TRUE, lty="dashed", col="grey", lwd=1) # gridlines
-#dev.off()
+dev.off()
 
 # ARUV
-#pdf(file="figures/map_VAME_plots.pdf", width=10, height=8)
+pdf(file="figures/map_ARUV_plots.pdf", width=10, height=8)
 plot(park.lcc, border="black") # park boundary
+plot(ecoreg.crop.lcc, col=rgb(.5,0.8,1,0.3), border="blue", add=T) # ecoregions polygons
 plot(fires.lcc, col=rgb(1,0,0,0.3), border="red4", add=T) # wildfire polygons
 plot(burns.lcc, col=rgb(1,0.7,0,0.3), border="orange", add=T) # prescribed burns polygons 
 plot(trtmts.lcc, col=rgb(1,0.7,0,0.3), border="orange", add=T) # fire treatments polygons
-plot(subset(dat.pres.lcc, Species.Code=="ARUV" & Data.Type=="Legacy"), pch=1, cex=1.5, col="black", add=T) # historical presences of ARUV
-plot(subset(dat.pres.lcc, Species.Code=="ARUV"& Data.Type=="Resurvey"), pch=4, cex=1.5, col="black", add=T) # contemporary presences of ARUV
+plot(subset(dat.pres.lcc, Species.Code=="ARUV" & Data.Type=="Legacy"), pch=1, cex=1, col="black", add=T) # historical presences of ARUV
+plot(subset(dat.pres.lcc, Species.Code=="ARUV"& Data.Type=="Resurvey"), pch=4, cex=1, col="black", add=T) # contemporary presences of ARUV
 plot(frame.grd.lcc, add=TRUE, lty="dashed", col="grey", lwd=1) # gridlines
-#dev.off()
+dev.off()
 
 # VAME
-#pdf(file="figures/map_VAME_plots.pdf", width=10, height=8)
+pdf(file="figures/map_VAME_plots.pdf", width=10, height=8)
 plot(park.lcc, border="black") # park boundary
+plot(ecoreg.crop.lcc, col=rgb(.5,0.8,1,0.3), border="blue", add=T) # ecoregions polygons
 plot(fires.lcc, col=rgb(1,0,0,0.3), border="red4", add=T) # wildfire polygons
 plot(burns.lcc, col=rgb(1,0.7,0,0.3), border="orange", add=T) # prescribed burns polygons 
 plot(trtmts.lcc, col=rgb(1,0.7,0,0.3), border="orange", add=T) # fire treatments polygons
-plot(subset(dat.pres.lcc, Species.Code=="VAME" & Data.Type=="Legacy"), pch=1, cex=1.5, col="black", add=T) # historical presences of VAME
-plot(subset(dat.pres.lcc, Species.Code=="VAME"& Data.Type=="Resurvey"), pch=4, cex=1.5, col="black", add=T) # contemporary presences of VAME
+plot(subset(dat.pres.lcc, Species.Code=="VAME" & Data.Type=="Legacy"), pch=1, cex=1, col="black", add=T) # historical presences of VAME
+plot(subset(dat.pres.lcc, Species.Code=="VAME"& Data.Type=="Resurvey"), pch=4, cex=1, col="black", add=T) # contemporary presences of VAME
 plot(frame.grd.lcc, add=TRUE, lty="dashed", col="grey", lwd=1) # gridlines
-#dev.off()
+dev.off()
 
 # CARU
-#pdf(file="figures/map_CARU_plots.pdf", width=10, height=8)
+pdf(file="figures/map_CARU_plots.pdf", width=10, height=8)
 plot(park.lcc, border="black") # park boundary
+plot(ecoreg.crop.lcc, col=rgb(.5,0.8,1,0.3), border="blue", add=T) # ecoregions polygons
 plot(fires.lcc, col=rgb(1,0,0,0.3), border="red4", add=T) # wildfire polygons
 plot(burns.lcc, col=rgb(1,0.7,0,0.3), border="orange", add=T) # prescribed burns polygons 
 plot(trtmts.lcc, col=rgb(1,0.7,0,0.3), border="orange", add=T) # fire treatments polygons
-plot(subset(dat.pres.lcc, Species.Code=="CARU" & Data.Type=="Legacy"), pch=1, cex=1.5, col="black", add=T) # historical presences of CARU
-plot(subset(dat.pres.lcc, Species.Code=="CARU"& Data.Type=="Resurvey"), pch=4, cex=1.5, col="black", add=T) # contemporary presences of CARU
+plot(subset(dat.pres.lcc, Species.Code=="CARU" & Data.Type=="Legacy"), pch=1, cex=1, col="black", add=T) # historical presences of CARU
+plot(subset(dat.pres.lcc, Species.Code=="CARU"& Data.Type=="Resurvey"), pch=4, cex=1, col="black", add=T) # contemporary presences of CARU
 plot(frame.grd.lcc, add=TRUE, lty="dashed", col="grey", lwd=1) # gridlines
-#dev.off()
+dev.off()
 
 # CEVE
-#pdf(file="figures/map_CEVE_plots.pdf", width=10, height=8)
+pdf(file="figures/map_CEVE_plots.pdf", width=10, height=8)
 plot(park.lcc, border="black") # park boundary
+plot(ecoreg.crop.lcc, col=rgb(.5,0.8,1,0.3), border="blue", add=T) # ecoregions polygons
 plot(fires.lcc, col=rgb(1,0,0,0.3), border="red4", add=T) # wildfire polygons
 plot(burns.lcc, col=rgb(1,0.7,0,0.3), border="orange", add=T) # prescribed burns polygons 
 plot(trtmts.lcc, col=rgb(1,0.7,0,0.3), border="orange", add=T) # fire treatments polygons
-plot(subset(dat.pres.lcc, Species.Code=="CEVE" & Data.Type=="Legacy"), pch=1, cex=1.5, col="black", add=T) # historical presences of CEVE
-plot(subset(dat.pres.lcc, Species.Code=="CEVE"& Data.Type=="Resurvey"), pch=4, cex=1.5, col="black", add=T) # contemporary presences of CEVE
+plot(subset(dat.pres.lcc, Species.Code=="CEVE" & Data.Type=="Legacy"), pch=1, cex=1, col="black", add=T) # historical presences of CEVE
+plot(subset(dat.pres.lcc, Species.Code=="CEVE"& Data.Type=="Resurvey"), pch=4, cex=1, col="black", add=T) # contemporary presences of CEVE
 plot(frame.grd.lcc, add=TRUE, lty="dashed", col="grey", lwd=1) # gridlines
-#dev.off()
+dev.off()
 
 # EPAN (CHAN)
-#pdf(file="figures/map_EPAN_plots.pdf", width=10, height=8)
+pdf(file="figures/map_EPAN_plots.pdf", width=10, height=8)
 plot(park.lcc, border="black") # park boundary
+plot(ecoreg.crop.lcc, col=rgb(.5,0.8,1,0.3), border="blue", add=T) # ecoregions polygons
 plot(fires.lcc, col=rgb(1,0,0,0.3), border="red4", add=T) # wildfire polygons
 plot(burns.lcc, col=rgb(1,0.7,0,0.3), border="orange", add=T) # prescribed burns polygons 
 plot(trtmts.lcc, col=rgb(1,0.7,0,0.3), border="orange", add=T) # fire treatments polygons
-plot(subset(dat.pres.lcc, Species.Code=="EPAN" & Data.Type=="Legacy"), pch=1, cex=1.5, col="black", add=T) # historical presences of EPAN
-plot(subset(dat.pres.lcc, Species.Code=="EPAN"& Data.Type=="Resurvey"), pch=4, cex=1.5, col="black", add=T) # contemporary presences of EPAN
+plot(subset(dat.pres.lcc, Species.Code=="EPAN" & Data.Type=="Legacy"), pch=1, cex=1, col="black", add=T) # historical presences of EPAN
+plot(subset(dat.pres.lcc, Species.Code=="EPAN"& Data.Type=="Resurvey"), pch=4, cex=1, col="black", add=T) # contemporary presences of EPAN
 plot(frame.grd.lcc, add=TRUE, lty="dashed", col="grey", lwd=1) # gridlines
-#dev.off()
+dev.off()
 
 # PAMY
-#pdf(file="figures/map_PAMY_plots.pdf", width=10, height=8)
+pdf(file="figures/map_PAMY_plots.pdf", width=10, height=8)
 plot(park.lcc, border="black") # park boundary
+plot(ecoreg.crop.lcc, col=rgb(.5,0.8,1,0.3), border="blue", add=T) # ecoregions polygons
 plot(fires.lcc, col=rgb(1,0,0,0.3), border="red4", add=T) # wildfire polygons
 plot(burns.lcc, col=rgb(1,0.7,0,0.3), border="orange", add=T) # prescribed burns polygons 
 plot(trtmts.lcc, col=rgb(1,0.7,0,0.3), border="orange", add=T) # fire treatments polygons
-plot(subset(dat.pres.lcc, Species.Code=="PAMY" & Data.Type=="Legacy"), pch=1, cex=1.5, col="black", add=T) # historical presences of PAMY
-plot(subset(dat.pres.lcc, Species.Code=="PAMY"& Data.Type=="Resurvey"), pch=4, cex=1.5, col="black", add=T) # contemporary presences of PAMY
+plot(subset(dat.pres.lcc, Species.Code=="PAMY" & Data.Type=="Legacy"), pch=1, cex=1, col="black", add=T) # historical presences of PAMY
+plot(subset(dat.pres.lcc, Species.Code=="PAMY"& Data.Type=="Resurvey"), pch=4, cex=1, col="black", add=T) # contemporary presences of PAMY
 plot(frame.grd.lcc, add=TRUE, lty="dashed", col="grey", lwd=1) # gridlines
-#dev.off()
+dev.off()
 
