@@ -263,4 +263,40 @@ table(pres_reg_df$NAME,
       pres_reg_df$Species.Code=="PAMY", 
       pres_reg_df$Data.Type)
 
+
 ### What is distribution of distances between a species' presences and burned plots? (i.e., what was opportunity to get to burned areas?)
+
+# Pick out burned plots (n=38)
+dat.burn <- dat.all %>% 
+  filter(Fires=="Burned") %>% 
+  dplyr::select(Latitude, Longitude) %>% 
+  unique() 
+
+# Transform to spatial data
+coordinates(dat.burn) <- ~Longitude+Latitude #convert to spatial data
+projection(dat.burn) <- CRS('+proj=longlat') #define projection
+dat.burn <- spTransform(dat.burn, CRS=CRS(prj.wgs)) #transform projection 
+
+# All presence records found during resurvey (n=2777)
+dat.pres.resurv <- dat.all %>% 
+  filter(Data.Type=="Resurvey",
+         Pres.Abs==1)
+
+# Transform to spatial data
+coordinates(dat.pres.resurv) <- ~Longitude+Latitude #convert to spatial data
+projection(dat.pres.resurv) <- CRS('+proj=longlat') #define projection
+dat.pres.resurv <- spTransform(dat.pres.resurv, CRS=CRS(prj.wgs)) #transform projection 
+
+# Calculate Great Circle distance between each burned plot and every resurvey presence
+dist.2.burn <- spDists(dat.pres.resurv, dat.burn, longlat=T) # returns matrix with 38 columns and 2777 rows, so each column is the distance to a single burned plot and each row is one resurveyed presence for a species
+dist.2.burn.dat <- as.data.frame(dist.2.burn)
+
+# Join back to presence data to identify species and plots
+dat.burn.distances <- bind_cols(as.data.frame(dat.pres.resurv), dist.2.burn.dat)
+
+# Make taller dataframe
+dat.burn.distances.tall <- pivot_longer(dat.burn.distances, cols=starts_with("V"), values_to="BurnPlotDist")
+
+ggplot(data=dat.burn.distances.tall, aes(x=BurnPlotDist, fill=Species.Code)) +
+  geom_histogram()
+     
