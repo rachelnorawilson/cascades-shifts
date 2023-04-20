@@ -1,4 +1,4 @@
-# Created: April 11, 2023
+# Created: April 19, 2023
 # Modified: 
 
 #### This script plots fire-experiencing species on a map to visualize their distributions in the study area. Are they spatially correlated? How do distributions differ on western vs eastern slope? 
@@ -16,6 +16,8 @@ library(mapdata)
 library(mapproj)
 library(ggstar)
 library(geodata)
+library(terra) 
+library(stars) 
 
 ### Read in data
 # Plot survey data
@@ -198,3 +200,67 @@ plot(subset(dat.pres.lcc, Species.Code=="PAMY"& Data.Type=="Resurvey"), pch=4, c
 plot(frame.grd.lcc, add=TRUE, lty="dashed", col="grey", lwd=1) # gridlines
 dev.off()
 
+
+### Who has records on the west vs east side (i.e., what was opportunity to get to burned areas?)
+
+# Spatial vector of polygons created from ecoregions shapefile
+ecoreg.vect <- vect(ecoreg) 
+
+# Subset to ecoregions of interest
+regions <- ecoreg.vect[ecoreg.vect$NAME == 'North Cascades' | 
+                         ecoreg.vect$NAME == 'East Cascades', ]
+# Check projection
+prj.reg <- crs(regions)                     
+
+# Transform plot presences to same projection
+dat.pres.reg <- spTransform(dat.pres, CRS=CRS(prj.reg)) #transform projection 
+
+# Transform to sf objects
+pres_pt <- st_as_sf(x = dat.pres.reg)#, 
+ecoregion_poly <- st_as_sf(regions)
+
+# Check that points map onto polygon
+plot(ecoregion_poly)
+points(pres_pt, cex=2) # not showing up
+
+# New object with points that are within ecoregion polygon
+pres_ecoregion <- st_intersection(ecoregion_poly, pres_pt) 
+
+# Convert back to data frame
+# Extract columns of interest
+pres_reg_df <- pres_ecoregion[, c('NAME', 'geometry', 'Species.Code', 'Pres.Abs', 'Fires', 'Elevation.m', 'Data.Type', 'Plot.Name.1980', 'Plot.Name.2015')] 
+# Extrat lat-long
+pres_reg_df$lon.lat <- substr(as.character(pres_reg_df$geometry), 3, (nchar(as.character(pres_reg_df$geometry))-1)) #remove parentheses
+
+foo <- separate(pres_reg_df, lon.lat, into = c('Longitude', 'Latitude'), sep = ', ') #separate by lon, lat
+pres_reg_df <- as.data.frame(foo) #remove spatial attributes
+
+pres_reg_df$Longitude <- as.numeric(pres_reg_df$Longitude) #turn lon-lat to numeric
+pres_reg_df$Latitude <- as.numeric(pres_reg_df$Latitude)
+
+table(pres_reg_df$NAME, 
+      pres_reg_df$Species.Code, 
+      pres_reg_df$Data.Type)
+table(pres_reg_df$NAME, 
+      pres_reg_df$Species.Code=="ACMI", 
+      pres_reg_df$Data.Type)
+table(pres_reg_df$NAME, 
+      pres_reg_df$Species.Code=="ARUV", 
+      pres_reg_df$Data.Type)
+table(pres_reg_df$NAME, 
+      pres_reg_df$Species.Code=="VAME", 
+      pres_reg_df$Data.Type)
+table(pres_reg_df$NAME, 
+      pres_reg_df$Species.Code=="CARU", 
+      pres_reg_df$Data.Type)
+table(pres_reg_df$NAME, 
+      pres_reg_df$Species.Code=="CEVE", 
+      pres_reg_df$Data.Type)
+table(pres_reg_df$NAME, 
+      pres_reg_df$Species.Code=="EPAN", 
+      pres_reg_df$Data.Type)
+table(pres_reg_df$NAME, 
+      pres_reg_df$Species.Code=="PAMY", 
+      pres_reg_df$Data.Type)
+
+### What is distribution of distances between a species' presences and burned plots? (i.e., what was opportunity to get to burned areas?)
