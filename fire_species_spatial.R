@@ -20,10 +20,22 @@ library(terra)
 library(stars) 
 
 ### Read in data
+
+# List of focal species
+load("data/Species.List.Rda")
+species.list <- shifts %>% 
+  filter(Species.Code!="MOSS") %>% 
+  dplyr::select(Species=Species.Code)
+species.list$Species <- as.character(species.list$Species)
+species.list$Focal <- "YES"
+
 # Plot survey data
 dat <- read_csv("data/1_presence_fires_unrarefied.csv") %>% #unfortunately the plot names in this file in column Plot differ between legacy and resurvey time points
   mutate(Plot.Name.2015 = ifelse(Data.Type=="Resurvey", Plot, NA),
-         Plot.Name.1980 = ifelse(Data.Type=="Legacy", Plot, NA))
+         Plot.Name.1980 = ifelse(Data.Type=="Legacy", Plot, NA)) %>% 
+  left_join(species.list, by=c("Species.Code"="Species")) %>% 
+  filter(Focal=="YES")
+
 dat.leg <- dat %>% filter(Data.Type=="Legacy")
 dat.res <- dat %>% filter(Data.Type=="Resurvey")
 
@@ -36,12 +48,12 @@ colnames(plots)[3] = "Plot.Name.1980"
 plots$Plot.Name.1980 = as.character(plots$Plot.Name.1980)
 
 # Join plot location and fire info to resurvey data
-dat.leg <- left_join(dat.leg, plots, by=c("Plot"="Plot.Name.1980")) %>% #NOTE: this join is adding 390 rows -- TROUBLESHOOT! 
+dat.leg <- left_join(dat.leg, plots, by=c("Plot"="Plot.Name.1980")) %>% #NOTE: this join is adding 126 rows -- TROUBLESHOOT! 
   dplyr::select(-Plot, -Plot.Name.2015.x)
-colnames(dat.leg)[8] = "Plot.Name.2015"
+colnames(dat.leg)[9] = "Plot.Name.2015"
 dat.res <- left_join(dat.res, plots, by=c("Plot"="Plot.Name.2015")) %>% #this join is good
   dplyr::select(-Plot, -Plot.Name.1980.x) 
-colnames(dat.res)[8] = "Plot.Name.1980"
+colnames(dat.res)[9] = "Plot.Name.1980"
 
 # Re-merge time points into one frame
 dat.all <- bind_rows(dat.leg, dat.res) %>% # this now has plot locations and plot names translated from legacy <--> resurvey
@@ -201,7 +213,7 @@ plot(frame.grd.lcc, add=TRUE, lty="dashed", col="grey", lwd=1) # gridlines
 dev.off()
 
 
-### Who has records on the west vs east side (i.e., what was opportunity to get to burned areas?)
+### Who had legacy records on the west vs east side (i.e., what was opportunity to get to burned areas?)
 
 # Spatial vector of polygons created from ecoregions shapefile
 ecoreg.vect <- vect(ecoreg) 
@@ -241,30 +253,9 @@ pres_reg_df$Latitude <- as.numeric(pres_reg_df$Latitude)
 table(pres_reg_df$NAME, 
       pres_reg_df$Species.Code, 
       pres_reg_df$Data.Type)
-table(pres_reg_df$NAME, 
-      pres_reg_df$Species.Code=="ACMI", 
-      pres_reg_df$Data.Type)
-table(pres_reg_df$NAME, 
-      pres_reg_df$Species.Code=="ARUV", 
-      pres_reg_df$Data.Type)
-table(pres_reg_df$NAME, 
-      pres_reg_df$Species.Code=="VAME", 
-      pres_reg_df$Data.Type)
-table(pres_reg_df$NAME, 
-      pres_reg_df$Species.Code=="CARU", 
-      pres_reg_df$Data.Type)
-table(pres_reg_df$NAME, 
-      pres_reg_df$Species.Code=="CEVE", 
-      pres_reg_df$Data.Type)
-table(pres_reg_df$NAME, 
-      pres_reg_df$Species.Code=="EPAN", 
-      pres_reg_df$Data.Type)
-table(pres_reg_df$NAME, 
-      pres_reg_df$Species.Code=="PAMY", 
-      pres_reg_df$Data.Type)
 
 
-### What is distribution of distances between a species' presences and burned plots? (i.e., what was opportunity to get to burned areas?)
+### What is distribution of distances between a species' historical presences and burned plots? (i.e., what was opportunity to colonize burned areas?)
 
 # Pick out burned plots (n=38)
 dat.burn <- dat.all %>% 
@@ -277,26 +268,29 @@ coordinates(dat.burn) <- ~Longitude+Latitude #convert to spatial data
 projection(dat.burn) <- CRS('+proj=longlat') #define projection
 dat.burn <- spTransform(dat.burn, CRS=CRS(prj.wgs)) #transform projection 
 
-# All presence records found during resurvey (n=2777)
-dat.pres.resurv <- dat.all %>% 
-  filter(Data.Type=="Resurvey",
+# All presence records found during resurvey (n=2109)
+dat.pres.leg <- dat.all %>% 
+  filter(Data.Type=="Legacy",
          Pres.Abs==1)
 
 # Transform to spatial data
-coordinates(dat.pres.resurv) <- ~Longitude+Latitude #convert to spatial data
-projection(dat.pres.resurv) <- CRS('+proj=longlat') #define projection
-dat.pres.resurv <- spTransform(dat.pres.resurv, CRS=CRS(prj.wgs)) #transform projection 
+coordinates(dat.pres.leg) <- ~Longitude+Latitude #convert to spatial data
+projection(dat.pres.leg) <- CRS('+proj=longlat') #define projection
+dat.pres.leg <- spTransform(dat.pres.leg, CRS=CRS(prj.wgs)) #transform projection 
 
 # Calculate Great Circle distance between each burned plot and every resurvey presence
-dist.2.burn <- spDists(dat.pres.resurv, dat.burn, longlat=T) # returns matrix with 38 columns and 2777 rows, so each column is the distance to a single burned plot and each row is one resurveyed presence for a species
-dist.2.burn.dat <- as.data.frame(dist.2.burn)
+dist.2.burn <- spDists(dat.pres.leg, dat.burn, longlat=T) # returns matrix with 38 columns and 2109 rows, so each column is the distance to a single burned plot and each row is one historical presence for a species
 
 # Join back to presence data to identify species and plots
-dat.burn.distances <- bind_cols(as.data.frame(dat.pres.resurv), dist.2.burn.dat)
+dat.burn.distances <- bind_cols(as.data.frame(dat.pres.leg), as.data.frame(dist.2.burn))
 
 # Make taller dataframe
 dat.burn.distances.tall <- pivot_longer(dat.burn.distances, cols=starts_with("V"), values_to="BurnPlotDist")
 
-ggplot(data=dat.burn.distances.tall, aes(x=BurnPlotDist, fill=Species.Code)) +
-  geom_histogram()
-     
+ggplot(data=dat.burn.distances.tall, aes(x=BurnPlotDist)) +
+  geom_histogram() +
+  facet_wrap(~Species.Code) +
+  xlab("Distance from legacy presences to burned plots (km)") 
+
+
+### What kinds of burns did burned plots experience? Categorize as natural, prescribed, etc.
