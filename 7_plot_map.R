@@ -133,5 +133,5 @@ plot(unburned.plots.lcc, pch=1, col="black", add=T) #add plots that didn't burn 
 plot(burned.plots.lcc, pch=4, col="black", cex=2, add=T) #add plots that burned between surveys
 plot(frame.grd.lcc, add=TRUE, lty="dashed", col="grey", lwd=1) #add gridlines
 dev.off()
-# assembled with panel B in illustrator, where grid labels, scale bar, and compass rose were added
+# assembled with panel B in PowerPoint, where grid labels, scale bar, and compass rose were added
 
