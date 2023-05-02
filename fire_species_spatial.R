@@ -268,7 +268,7 @@ coordinates(dat.burn) <- ~Longitude+Latitude #convert to spatial data
 projection(dat.burn) <- CRS('+proj=longlat') #define projection
 dat.burn <- spTransform(dat.burn, CRS=CRS(prj.wgs)) #transform projection 
 
-# All presence records found during resurvey (n=2109)
+# All presence records found during legacy survey (n=2109)
 dat.pres.leg <- dat.all %>% 
   filter(Data.Type=="Legacy",
          Pres.Abs==1)
