@@ -39,7 +39,7 @@ dat <- read_csv("data/1_presence_fires_unrarefied.csv") %>% #unfortunately the p
 dat.leg <- dat %>% filter(Data.Type=="Legacy")
 dat.res <- dat %>% filter(Data.Type=="Resurvey")
 
-# Plot locations and fire status
+# Plot locations 
 plots <- read_csv("data/0_Lat.Long.csv") %>% 
   drop_na() %>% 
   mutate(Longitude=ifelse(Longitude>0, -Longitude, Longitude)) #input file accidentally has some longitudes in E instead of W
@@ -294,3 +294,43 @@ ggplot(data=dat.burn.distances.tall, aes(x=BurnPlotDist)) +
 
 
 ### What kinds of burns did burned plots experience? Categorize as natural, prescribed, etc.
+
+# Spatial vector of polygons created from different fire maps
+fires.vect <- vect(fires)
+prescr.vect <- vect(burns) 
+trtmts.vec <- vect(trtmts)
+
+# Check projections - all the same
+prj.fires <- crs(fires.vect)                     
+prj.prescr <- crs(prescr.vect)                     
+prj.trtmts <- crs(trtmts.vec)                     
+
+# Transform plot presences to same projection
+dat.pres.prescr <- spTransform(dat.pres, CRS=CRS(prj.prescr)) #transform projection 
+
+# Transform to sf objects
+pres_pt <- st_as_sf(x = dat.pres.prescr)#, 
+fires_poly <- st_as_sf(fires.vect)
+prescr_poly <- st_as_sf(prescr.vect)
+trtmts_poly <- st_as_sf(trtmts.vec)
+
+# New object with points that are within different fire polygons
+pres_fires <- st_intersection(fires_poly, pres_pt) 
+pres_prescr <- st_intersection(prescr_poly, pres_pt) 
+pres_trtmts <- st_intersection(trtmts_poly, pres_pt) 
+
+# Convert back to data frame
+# Extract columns of interest
+pres_reg_df <- pres_ecoregion[, c('NAME', 'geometry', 'Species.Code', 'Pres.Abs', 'Fires', 'Elevation.m', 'Data.Type', 'Plot.Name.1980', 'Plot.Name.2015')] 
+# Extrat lat-long
+pres_reg_df$lon.lat <- substr(as.character(pres_reg_df$geometry), 3, (nchar(as.character(pres_reg_df$geometry))-1)) #remove parentheses
+
+foo <- separate(pres_reg_df, lon.lat, into = c('Longitude', 'Latitude'), sep = ', ') #separate by lon, lat
+pres_reg_df <- as.data.frame(foo) #remove spatial attributes
+
+pres_reg_df$Longitude <- as.numeric(pres_reg_df$Longitude) #turn lon-lat to numeric
+pres_reg_df$Latitude <- as.numeric(pres_reg_df$Latitude)
+
+table(pres_reg_df$NAME, 
+      pres_reg_df$Species.Code, 
+      pres_reg_df$Data.Type)
