@@ -309,28 +309,94 @@ prj.trtmts <- crs(trtmts.vec)
 dat.pres.prescr <- spTransform(dat.pres, CRS=CRS(prj.prescr)) #transform projection 
 
 # Transform to sf objects
-pres_pt <- st_as_sf(x = dat.pres.prescr)#, 
+pres_pt <- st_as_sf(x = dat.pres.prescr) 
 fires_poly <- st_as_sf(fires.vect)
 prescr_poly <- st_as_sf(prescr.vect)
 trtmts_poly <- st_as_sf(trtmts.vec)
 
-# New object with points that are within different fire polygons
+# New objects with points that are within different fire polygons
+sf_use_s2(FALSE)
 pres_fires <- st_intersection(fires_poly, pres_pt) 
 pres_prescr <- st_intersection(prescr_poly, pres_pt) 
 pres_trtmts <- st_intersection(trtmts_poly, pres_pt) 
 
-# Convert back to data frame
-# Extract columns of interest
-pres_reg_df <- pres_ecoregion[, c('NAME', 'geometry', 'Species.Code', 'Pres.Abs', 'Fires', 'Elevation.m', 'Data.Type', 'Plot.Name.1980', 'Plot.Name.2015')] 
-# Extrat lat-long
-pres_reg_df$lon.lat <- substr(as.character(pres_reg_df$geometry), 3, (nchar(as.character(pres_reg_df$geometry))-1)) #remove parentheses
+# Convert back to data frames
+pres_fires_df <- pres_fires[, c('CAUSE', 'CAL_YEAR', 'Acres', 'Species.Code', 'Pres.Abs', 'Fires', 'Elevation.m', 'Data.Type', 'Plot.Name.1980', 'Plot.Name.2015')] #extract columns of interest
+pres_fires_df$lon.lat <- substr(as.character(pres_fires_df$geometry), 3, (nchar(as.character(pres_fires_df$geometry))-1)) #extract lat-long, remove parentheses
+foo <- separate(pres_fires_df, lon.lat, into = c('Longitude', 'Latitude'), sep = ', ') #separate by lon, lat
+pres_fires_df <- as.data.frame(foo) #remove spatial attributes
+pres_fires_df$Longitude <- as.numeric(pres_fires_df$Longitude) #turn lon-lat to numeric
+pres_fires_df$Latitude <- as.numeric(pres_fires_df$Latitude)
+colnames(pres_fires_df)[1] <- "TYPE"
+colnames(pres_fires_df)[3] <- "ACRES"
+unique(pres_fires_df$ACRES)
+unique(pres_fires_df$Plot.Name.2015)
+table(pres_fires_df$TYPE,
+      pres_fires_df$Plot.Name.2015,
+      pres_fires_df$CAL_YEAR)
+table(pres_fires_df$Plot.Name.2015,
+      pres_fires_df$TYPE)
+table(pres_fires_df$TYPE,
+      pres_fires_df$CAL_YEAR)
 
-foo <- separate(pres_reg_df, lon.lat, into = c('Longitude', 'Latitude'), sep = ', ') #separate by lon, lat
-pres_reg_df <- as.data.frame(foo) #remove spatial attributes
+pres_prescr_df <- pres_prescr[, c('NAME', 'CAL_YEAR', 'ACRES', 'Species.Code', 'Pres.Abs', 'Fires', 'Elevation.m', 'Data.Type', 'Plot.Name.1980', 'Plot.Name.2015')] #extract columns of interest
+pres_prescr_df$lon.lat <- substr(as.character(pres_prescr_df$geometry), 3, (nchar(as.character(pres_prescr_df$geometry))-1)) #extract lat-long, remove parentheses
+foo <- separate(pres_prescr_df, lon.lat, into = c('Longitude', 'Latitude'), sep = ', ') #separate by lon, lat
+pres_prescr_df <- as.data.frame(foo) #remove spatial attributes
+pres_prescr_df$Longitude <- as.numeric(pres_prescr_df$Longitude) #turn lon-lat to numeric
+pres_prescr_df$Latitude <- as.numeric(pres_prescr_df$Latitude)
+colnames(pres_prescr_df)[1] <- "TYPE"
+unique(pres_prescr_df$ACRES)
+unique(pres_prescr_df$Plot.Name.2015)
+table(pres_prescr_df$Plot.Name.2015,
+      pres_prescr_df$CAL_YEAR)
+table(pres_prescr_df$Plot.Name.2015,
+      pres_prescr_df$TYPE)
 
-pres_reg_df$Longitude <- as.numeric(pres_reg_df$Longitude) #turn lon-lat to numeric
-pres_reg_df$Latitude <- as.numeric(pres_reg_df$Latitude)
+pres_trtmts_df <- pres_trtmts[, c('Treatment', 'TreatYear', 'acres', 'Species.Code', 'Pres.Abs', 'Fires', 'Elevation.m', 'Data.Type', 'Plot.Name.1980', 'Plot.Name.2015')] #extract columns of interest
+pres_trtmts_df$lon.lat <- substr(as.character(pres_trtmts_df$geometry), 3, (nchar(as.character(pres_trtmts_df$geometry))-1)) #extract lat-long, remove parentheses
+foo <- separate(pres_trtmts_df, lon.lat, into = c('Longitude', 'Latitude'), sep = ', ') #separate by lon, lat
+pres_trtmts_df <- as.data.frame(foo) #remove spatial attributes
+pres_trtmts_df$Longitude <- as.numeric(pres_trtmts_df$Longitude) #turn lon-lat to numeric
+pres_trtmts_df$Latitude <- as.numeric(pres_trtmts_df$Latitude)
+colnames(pres_trtmts_df)[1] <- "TYPE"
+colnames(pres_trtmts_df)[2] <- "CAL_YEAR"
+colnames(pres_trtmts_df)[3] <- "ACRES"
+unique(pres_trtmts_df$ACRES)
+unique(pres_trtmts_df$Plot.Name.2015)
+table(pres_trtmts_df$Plot.Name.2015,
+      pres_trtmts_df$TYPE)
+table(pres_trtmts_df$Plot.Name.2015,
+      pres_trtmts_df$TYPE, 
+      pres_trtmts_df$CAL_YEAR)
 
-table(pres_reg_df$NAME, 
-      pres_reg_df$Species.Code, 
-      pres_reg_df$Data.Type)
+fire.types <- rbind(pres_fires_df, pres_prescr_df, pres_trtmts_df)
+
+table(fire.types$Plot.Name.2015, 
+      fire.types$TYPE)
+table(fire.types$Plot.Name.2015[fire.types$Species.Code=="ACMI"], 
+      fire.types$TYPE[fire.types$Species.Code=="ACMI"],
+      fire.types$CAL_YEAR[fire.types$Species.Code=="ACMI"])
+table(fire.types$Plot.Name.2015[fire.types$Species.Code=="ARUV"], 
+      fire.types$TYPE[fire.types$Species.Code=="ARUV"],
+      fire.types$CAL_YEAR[fire.types$Species.Code=="ARUV"])
+table(fire.types$Plot.Name.2015[fire.types$Species.Code=="VAME"], 
+      fire.types$TYPE[fire.types$Species.Code=="VAME"],
+      fire.types$CAL_YEAR[fire.types$Species.Code=="VAME"])
+table(fire.types$Plot.Name.2015[fire.types$Species.Code=="CARU"], 
+      fire.types$TYPE[fire.types$Species.Code=="CARU"]
+      fire.types$CAL_YEAR[fire.types$Species.Code=="CARU"])
+table(fire.types$Plot.Name.2015[fire.types$Species.Code=="CEVE"], 
+      fire.types$TYPE[fire.types$Species.Code=="CEVE"],
+      fire.types$CAL_YEAR[fire.types$Species.Code=="CEVE"])
+table(fire.types$Plot.Name.2015[fire.types$Species.Code=="EPAN"], 
+      fire.types$TYPE[fire.types$Species.Code=="EPAN"],
+      fire.types$CAL_YEAR[fire.types$Species.Code=="EPAN"])
+table(fire.types$Plot.Name.2015[fire.types$Species.Code=="PAMY"], 
+      #fire.types$TYPE[fire.types$Species.Code=="PAMY"],
+      fire.types$CAL_YEAR[fire.types$Species.Code=="PAMY"])
+
+
+
+
+
