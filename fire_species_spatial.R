@@ -1,7 +1,7 @@
 # Created: April 19, 2023
 # Modified: 
 
-#### This script plots fire-experiencing species on a map to visualize their distributions in the study area. Are they spatially correlated? How do distributions differ on western vs eastern slope? 
+#### This script plots fire-experiencing species on a map to visualize their distributions in the study area. Are they spatially correlated? How do distributions differ on western vs eastern slope? It also examines how properties of the fires (unplanned vs prescribed, size, severity) might have affected species dynamics.
 
 
 ### Load libraries
@@ -67,6 +67,7 @@ dat.pres <- filter(dat.all, Pres.Abs==1)
 # Define projections
 prj.wgs <- "+proj=longlat + type=crs"
 prj.lcc <- "+proj=lcc +lon_0=-95 +lat_1=49 +lat_2=77 +type=crs"
+prj.nad <- crs(b2004)
 
 # Transform to spatial data
 coordinates(dat.pres) <- ~Longitude+Latitude #convert to spatial data
@@ -89,7 +90,7 @@ park <- readOGR("data/shapefiles/park/NOCA_Park_boundary.shp")
 park <- spTransform(park, CRS=CRS(prj.wgs))
 park.lcc <- spTransform(park, CRS=CRS(prj.lcc))
 
-# Wildfire polygons
+# Wildfire boundary polygons
 fires <- readOGR("data/shapefiles/fires/NOCA_Wildfire_History.shp")
 fires <- spTransform(fires, CRS=CRS(prj.wgs))
 fires <- st_as_sf(fires) %>% 
@@ -97,7 +98,7 @@ fires <- st_as_sf(fires) %>%
 fires.sp <- as(fires, "Spatial")
 fires.lcc <- spTransform(fires.sp, CRS=CRS(prj.lcc))
 
-# Prescribed burn polygons
+# Prescribed burn boundary polygons
 burns <- readOGR("data/shapefiles/fires/Prescribed_burn_history.shp")
 burns <- spTransform(burns, CRS=CRS(prj.wgs))
 burns <- st_as_sf(burns) %>% 
@@ -105,7 +106,7 @@ burns <- st_as_sf(burns) %>%
 burns.sp <- as(burns, "Spatial")
 burns.lcc <- spTransform(burns.sp, CRS=CRS(prj.lcc))
 
-# Fire treatment polygons (how are these different from prescribed burns?)
+# Fire treatment boundary polygons (these are prescribed burns with various management treatments, like thinning)
 trtmts <- readOGR("data/shapefiles/fires/Fire_treatment_history.shp")
 trtmts <- spTransform(trtmts, CRS=CRS(prj.wgs))
 trtmts <- st_as_sf(trtmts) %>% 
@@ -113,6 +114,79 @@ trtmts <- st_as_sf(trtmts) %>%
 trtmts.sp <- as(trtmts, "Spatial")
 trtmts.lcc <- spTransform(trtmts.sp, CRS=CRS(prj.lcc))
 
+# Burn severity maps for years in which fires affected plots
+b1990 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_1990.tif")
+b1990.shp <- rasterToPolygons(b1990)
+b1990.wgs <- spTransform(b1990.shp, CRS=CRS(prj.wgs))
+b1990.crop <- crop(b1990.wgs, ext)
+writeOGR(b1990.crop, dsn="data/shapefiles/MTBS_BSmosaics", layer="b1990", driver="ESRI Shapefile")
+rm(list=c('b1990', 'b1990.shp', 'b1990.wgs', 'b1990.crop'))
+
+b1993 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_1993.tif")
+b1993.shp <- rasterToPolygons(b1993)
+b1993.wgs <- spTransform(b1993.shp, CRS=CRS(prj.wgs))
+b1993.crop <- crop(b1993.wgs, ext) #last step does not work
+writeOGR(b1993.crop, dsn="data/shapefiles/MTBS_BSmosaics", layer="b1993", driver="ESRI Shapefile")
+rm(list=c('b1993', 'b1993.shp', 'b1993.wgs', 'b1993.crop'))
+
+b1994 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_1994.tif")
+b1994.shp <- rasterToPolygons(b1994)
+b1994.wgs <- spTransform(b1994.shp, CRS=CRS(prj.wgs))
+b1994.crop <- crop(b1994.wgs, ext) 
+writeOGR(b1994.crop, dsn="data/shapefiles/MTBS_BSmosaics", layer="b1994", driver="ESRI Shapefile")
+rm(list=c('b1994', 'b1994.shp', 'b1994.wgs', 'b1994.crop'))
+
+b1997 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_1997.tif")
+b1997.shp <- rasterToPolygons(b1997)
+b1997.wgs <- spTransform(b1997.shp, CRS=CRS(prj.wgs))
+b1997.crop <- crop(b1997.wgs, ext) #this step fails
+writeOGR(b1997.crop, dsn="data/shapefiles/MTBS_BSmosaics", layer="b1997", driver="ESRI Shapefile")
+rm(list=c('b1997', 'b1997.shp', 'b1997.wgs', 'b1997.crop'))
+
+b2002 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_2002.tif")
+b2002.shp <- rasterToPolygons(b2002)
+b2002.wgs <- spTransform(b2002.shp, CRS=CRS(prj.wgs))
+b2002.crop <- crop(b2002.wgs, ext) 
+writeOGR(b2002.crop, dsn="data/shapefiles/MTBS_BSmosaics", layer="b2002", driver="ESRI Shapefile")
+rm(list=c('b2002', 'b2002.shp', 'b2002.wgs', 'b2002.crop'))
+
+b2004 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_2004.tif")
+b2004.shp <- rasterToPolygons(b2004)
+b2004.wgs <- spTransform(b2004.shp, CRS=CRS(prj.wgs))
+b2004.crop <- crop(b2004.wgs, ext) 
+writeOGR(b2004.crop, dsn="data/shapefiles/MTBS_BSmosaics", layer="b2004", driver="ESRI Shapefile")
+rm(list=c('b2004', 'b2004.shp', 'b2004.wgs', 'b2004.crop'))
+
+b2006 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_2006.tif")
+b2006.shp <- rasterToPolygons(b2006)
+b2006.wgs <- spTransform(b2006.shp, CRS=CRS(prj.wgs))
+b2006.crop <- crop(b2006.wgs, ext) 
+writeOGR(b2006.crop, dsn="data/shapefiles/MTBS_BSmosaics", layer="b2006", driver="ESRI Shapefile")
+rm(list=c('b2006', 'b2006.shp', 'b2006.wgs', 'b2006.crop'))
+
+b2009 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_2009.tif")
+b2009.wgs <- projectRaster(b2009, crs=prj.wgs)
+b2009.shp <- rasterToPolygons(b2009)
+b2009.wgs <- spTransform(b2009.shp, CRS=CRS(prj.wgs))
+b2009.crop <- crop(b2009.wgs, ext) 
+rm(list=c('b2009', 'b2009.shp', 'b2009.wgs'))
+
+b2010 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_2010.tif")
+b2010.shp <- rasterToPolygons(b2010)
+b2010.wgs <- spTransform(b2010.shp, CRS=CRS(prj.wgs))
+b2010.crop <- crop(b2010.wgs, ext) 
+rm(list=c('b2010', 'b2010.shp', 'b2010.wgs'))
+
+b2014 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_2014.tif")
+b2014.shp <- rasterToPolygons(b2014)
+b2014.wgs <- spTransform(b2014.shp, CRS=CRS(prj.wgs))
+b2014.crop <- crop(b2014.wgs, ext) 
+rm(list=c('b2014', 'b2014.shp', 'b2014.wgs'))
+
+#stack
+severity <- stack(b1990, b1993)
+
+  
 # Ecoregions polygons
 ecoreg <- readOGR("data/shapefiles/Ecoregions_of_the_Pacific_Northwest/Ecoregions_of_the_Pacific_Northwest.shp")
 ecoreg <- spTransform(ecoreg, CRS=CRS(prj.wgs))
