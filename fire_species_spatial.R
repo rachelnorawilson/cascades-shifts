@@ -80,12 +80,13 @@ ext <- extent(min(dat.pres$Longitude)-0.25, max(dat.pres$Longitude)+0.5, min(dat
 bbox <- as(ext, "SpatialPolygons") #convert coordinates to a bounding box
 
 # Burn severity maps for years in which fires affected plots
-b1990 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_1990.tif")
-b1990.shp <- rasterToPolygons(b1990)
-b1990.wgs <- spTransform(b1990.shp, CRS=CRS(prj.wgs))
-b1990.crop <- crop(b1990.wgs, ext)
-writeOGR(b1990.crop, dsn="data/shapefiles/MTBS_BSmosaics", layer="b1990", driver="ESRI Shapefile")
-rm(list=c('b1990', 'b1990.shp', 'b1990.wgs', 'b1990.crop'))
+#b1990 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_1990.tif")
+#b1990.shp <- rasterToPolygons(b1990)
+#b1990.wgs <- spTransform(b1990.shp, CRS=CRS(prj.wgs))
+#b1990.crop <- crop(b1990.wgs, ext)
+#writeOGR(b1990.crop, dsn="data/shapefiles/MTBS_BSmosaics", layer="b1990", driver="ESRI Shapefile")
+#rm(list=c('b1990', 'b1990.shp', 'b1990.wgs', 'b1990.crop'))
+b1990.crop <- readOGR(dsn="data/shapefiles/MTBS_BSmosaics", layer="b1990")
 
 b1993 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_1993.tif")
 b1993.shp <- rasterToPolygons(b1993)
