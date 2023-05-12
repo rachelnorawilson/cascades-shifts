@@ -79,41 +79,6 @@ dat.pres.lcc <- spTransform(dat.pres, CRS=CRS(prj.lcc)) #transform projection
 ext <- extent(min(dat.pres$Longitude)-0.25, max(dat.pres$Longitude)+0.5, min(dat.pres$Latitude)-0.5, max(dat.pres$Latitude)+0.25)
 bbox <- as(ext, "SpatialPolygons") #convert coordinates to a bounding box
 
-# USA polygons (used for lat/lon gridlines) 
-sta = readOGR("data/shapefiles/states/gz_2010_us_040_00_500k.shp")
-projection(sta) = CRS(prj.wgs)
-# Crop state lines to study area
-sta.crop <- crop(sta, bbox)
-
-# Park boundary
-park <- readOGR("data/shapefiles/park/NOCA_Park_boundary.shp")
-park <- spTransform(park, CRS=CRS(prj.wgs))
-park.lcc <- spTransform(park, CRS=CRS(prj.lcc))
-
-# Wildfire boundary polygons
-fires <- readOGR("data/shapefiles/fires/NOCA_Wildfire_History.shp")
-fires <- spTransform(fires, CRS=CRS(prj.wgs))
-fires <- st_as_sf(fires) %>% 
-  filter(CAL_YEAR>=1983)
-fires.sp <- as(fires, "Spatial")
-fires.lcc <- spTransform(fires.sp, CRS=CRS(prj.lcc))
-
-# Prescribed burn boundary polygons
-burns <- readOGR("data/shapefiles/fires/Prescribed_burn_history.shp")
-burns <- spTransform(burns, CRS=CRS(prj.wgs))
-burns <- st_as_sf(burns) %>% 
-  filter(CAL_YEAR>=1983)
-burns.sp <- as(burns, "Spatial")
-burns.lcc <- spTransform(burns.sp, CRS=CRS(prj.lcc))
-
-# Fire treatment boundary polygons (these are prescribed burns with various management treatments, like thinning)
-trtmts <- readOGR("data/shapefiles/fires/Fire_treatment_history.shp")
-trtmts <- spTransform(trtmts, CRS=CRS(prj.wgs))
-trtmts <- st_as_sf(trtmts) %>% 
-  filter(TreatYear>=1983)
-trtmts.sp <- as(trtmts, "Spatial")
-trtmts.lcc <- spTransform(trtmts.sp, CRS=CRS(prj.lcc))
-
 # Burn severity maps for years in which fires affected plots
 b1990 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_1990.tif")
 b1990.shp <- rasterToPolygons(b1990)
@@ -169,22 +134,62 @@ b2009.wgs <- projectRaster(b2009, crs=prj.wgs)
 b2009.shp <- rasterToPolygons(b2009)
 b2009.wgs <- spTransform(b2009.shp, CRS=CRS(prj.wgs))
 b2009.crop <- crop(b2009.wgs, ext) 
-rm(list=c('b2009', 'b2009.shp', 'b2009.wgs'))
+writeOGR(b2009.crop, dsn="data/shapefiles/MTBS_BSmosaics", layer="b2009", driver="ESRI Shapefile")
+rm(list=c('b2009', 'b2009.shp', 'b2009.wgs', 'b2009.crop'))
 
 b2010 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_2010.tif")
 b2010.shp <- rasterToPolygons(b2010)
 b2010.wgs <- spTransform(b2010.shp, CRS=CRS(prj.wgs))
 b2010.crop <- crop(b2010.wgs, ext) 
-rm(list=c('b2010', 'b2010.shp', 'b2010.wgs'))
+writeOGR(b2010.crop, dsn="data/shapefiles/MTBS_BSmosaics", layer="b2010", driver="ESRI Shapefile")
+rm(list=c('b2010', 'b2010.shp', 'b2010.wgs', 'b2010.crop'))
 
 b2014 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_2014.tif")
 b2014.shp <- rasterToPolygons(b2014)
 b2014.wgs <- spTransform(b2014.shp, CRS=CRS(prj.wgs))
 b2014.crop <- crop(b2014.wgs, ext) 
-rm(list=c('b2014', 'b2014.shp', 'b2014.wgs'))
+writeOGR(b2014.crop, dsn="data/shapefiles/MTBS_BSmosaics", layer="b2014", driver="ESRI Shapefile")
+rm(list=c('b2014', 'b2014.shp', 'b2014.wgs', 'b2014.crop'))
 
 #stack
 severity <- stack(b1990, b1993)
+
+# USA polygons (used for lat/lon gridlines) 
+sta = readOGR("data/shapefiles/states/gz_2010_us_040_00_500k.shp")
+projection(sta) = CRS(prj.wgs)
+# Crop state lines to study area
+sta.crop <- crop(sta, bbox)
+
+# Park boundary
+park <- readOGR("data/shapefiles/park/NOCA_Park_boundary.shp")
+park <- spTransform(park, CRS=CRS(prj.wgs))
+park.lcc <- spTransform(park, CRS=CRS(prj.lcc))
+
+# Wildfire boundary polygons
+fires <- readOGR("data/shapefiles/fires/NOCA_Wildfire_History.shp")
+fires <- spTransform(fires, CRS=CRS(prj.wgs))
+fires <- st_as_sf(fires) %>% 
+  filter(CAL_YEAR>=1983)
+fires.sp <- as(fires, "Spatial")
+fires.lcc <- spTransform(fires.sp, CRS=CRS(prj.lcc))
+
+# Prescribed burn boundary polygons
+burns <- readOGR("data/shapefiles/fires/Prescribed_burn_history.shp")
+burns <- spTransform(burns, CRS=CRS(prj.wgs))
+burns <- st_as_sf(burns) %>% 
+  filter(CAL_YEAR>=1983)
+burns.sp <- as(burns, "Spatial")
+burns.lcc <- spTransform(burns.sp, CRS=CRS(prj.lcc))
+
+# Fire treatment boundary polygons (these are prescribed burns with various management treatments, like thinning)
+trtmts <- readOGR("data/shapefiles/fires/Fire_treatment_history.shp")
+trtmts <- spTransform(trtmts, CRS=CRS(prj.wgs))
+trtmts <- st_as_sf(trtmts) %>% 
+  filter(TreatYear>=1983)
+trtmts.sp <- as(trtmts, "Spatial")
+trtmts.lcc <- spTransform(trtmts.sp, CRS=CRS(prj.lcc))
+
+
 
   
 # Ecoregions polygons
