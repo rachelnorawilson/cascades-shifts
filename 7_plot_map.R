@@ -127,8 +127,8 @@ ggsave("figures/7_Figure1B_map_world_inset.png", width=8, height=5)
 pdf(file="figures/7_Figure1A_map_fire_plots.pdf", width=10, height=8)
 plot(park.lcc, border="black") # park boundary
 plot(fires.lcc, col=rgb(1,0,0,0.3), border="red4", add=T) 
-plot(burns.lcc, col=rgb(1,0,0,0.3), border="red4", add=T) #prescribed burns layer 
-plot(trtmts.lcc, col=rgb(1,0,0,0.3), border="red4", add=T) #prescribed burns layer
+plot(burns.lcc, col=rgb(1,0,0,0.3), border="orange", add=T) #prescribed burns layer 
+plot(trtmts.lcc, col=rgb(1,0,0,0.3), border="orange", add=T) #prescribed burns layer
 plot(unburned.plots.lcc, pch=1, col="black", add=T) #add plots that didn't burn between surveys
 plot(burned.plots.lcc, pch=4, col="black", cex=2, add=T) #add plots that burned between surveys
 plot(frame.grd.lcc, add=TRUE, lty="dashed", col="grey", lwd=1) #add gridlines
