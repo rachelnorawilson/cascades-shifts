@@ -67,7 +67,6 @@ dat.pres <- filter(dat.all, Pres.Abs==1)
 # Define projections
 prj.wgs <- "+proj=longlat + type=crs"
 prj.lcc <- "+proj=lcc +lon_0=-95 +lat_1=49 +lat_2=77 +type=crs"
-prj.nad <- crs(b2004)
 
 # Transform to spatial data
 coordinates(dat.pres) <- ~Longitude+Latitude #convert to spatial data
@@ -88,72 +87,79 @@ bbox <- as(ext, "SpatialPolygons") #convert coordinates to a bounding box
 #rm(list=c('b1990', 'b1990.shp', 'b1990.wgs', 'b1990.crop'))
 b1990.crop <- readOGR(dsn="data/shapefiles/MTBS_BSmosaics", layer="b1990")
 
-b1993 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_1993.tif")
-b1993.shp <- rasterToPolygons(b1993)
-b1993.wgs <- spTransform(b1993.shp, CRS=CRS(prj.wgs))
-b1993.crop <- crop(b1993.wgs, ext) #last step does not work
-writeOGR(b1993.crop, dsn="data/shapefiles/MTBS_BSmosaics", layer="b1993", driver="ESRI Shapefile")
-rm(list=c('b1993', 'b1993.shp', 'b1993.wgs', 'b1993.crop'))
+#b1993 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_1993.tif")
+#b1993.shp <- rasterToPolygons(b1993)
+#b1993.wgs <- spTransform(b1993.shp, CRS=CRS(prj.wgs))
+#b1993.crop <- crop(b1993.wgs, ext) #last step does not work
+#writeOGR(b1993.crop, dsn="data/shapefiles/MTBS_BSmosaics", layer="b1993", driver="ESRI Shapefile")
+#rm(list=c('b1993', 'b1993.shp', 'b1993.wgs', 'b1993.crop'))
+b1993.crop <- readOGR(dsn="data/shapefiles/MTBS_BSmosaics", layer="b1993")
 
-b1994 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_1994.tif")
-b1994.shp <- rasterToPolygons(b1994)
-b1994.wgs <- spTransform(b1994.shp, CRS=CRS(prj.wgs))
-b1994.crop <- crop(b1994.wgs, ext) 
-writeOGR(b1994.crop, dsn="data/shapefiles/MTBS_BSmosaics", layer="b1994", driver="ESRI Shapefile")
-rm(list=c('b1994', 'b1994.shp', 'b1994.wgs', 'b1994.crop'))
+#b1994 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_1994.tif")
+#b1994.shp <- rasterToPolygons(b1994)
+#b1994.wgs <- spTransform(b1994.shp, CRS=CRS(prj.wgs))
+#b1994.crop <- crop(b1994.wgs, ext) 
+#writeOGR(b1994.crop, dsn="data/shapefiles/MTBS_BSmosaics", layer="b1994", driver="ESRI Shapefile")
+#rm(list=c('b1994', 'b1994.shp', 'b1994.wgs', 'b1994.crop'))
+b1994.crop <- readOGR(dsn="data/shapefiles/MTBS_BSmosaics", layer="b1994")
 
-b1997 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_1997.tif")
-b1997.shp <- rasterToPolygons(b1997)
-b1997.wgs <- spTransform(b1997.shp, CRS=CRS(prj.wgs))
-b1997.crop <- crop(b1997.wgs, ext) #this step fails
-writeOGR(b1997.crop, dsn="data/shapefiles/MTBS_BSmosaics", layer="b1997", driver="ESRI Shapefile")
-rm(list=c('b1997', 'b1997.shp', 'b1997.wgs', 'b1997.crop'))
+#b1997 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_1997.tif")
+#b1997.shp <- rasterToPolygons(b1997)
+#b1997.wgs <- spTransform(b1997.shp, CRS=CRS(prj.wgs))
+#b1997.crop <- crop(b1997.wgs, ext) #this step fails
+#writeOGR(b1997.crop, dsn="data/shapefiles/MTBS_BSmosaics", layer="b1997", driver="ESRI Shapefile")
+#rm(list=c('b1997', 'b1997.shp', 'b1997.wgs', 'b1997.crop'))
+b1997.crop <- readOGR(dsn="data/shapefiles/MTBS_BSmosaics", layer="b1997")
 
-b2002 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_2002.tif")
-b2002.shp <- rasterToPolygons(b2002)
-b2002.wgs <- spTransform(b2002.shp, CRS=CRS(prj.wgs))
-b2002.crop <- crop(b2002.wgs, ext) 
-writeOGR(b2002.crop, dsn="data/shapefiles/MTBS_BSmosaics", layer="b2002", driver="ESRI Shapefile")
-rm(list=c('b2002', 'b2002.shp', 'b2002.wgs', 'b2002.crop'))
+#b2002 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_2002.tif")
+#b2002.shp <- rasterToPolygons(b2002)
+#b2002.wgs <- spTransform(b2002.shp, CRS=CRS(prj.wgs))
+#b2002.crop <- crop(b2002.wgs, ext) 
+#writeOGR(b2002.crop, dsn="data/shapefiles/MTBS_BSmosaics", layer="b2002", driver="ESRI Shapefile")
+#rm(list=c('b2002', 'b2002.shp', 'b2002.wgs', 'b2002.crop'))
+b2002.crop <- readOGR(dsn="data/shapefiles/MTBS_BSmosaics", layer="b2002")
 
-b2004 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_2004.tif")
-b2004.shp <- rasterToPolygons(b2004)
-b2004.wgs <- spTransform(b2004.shp, CRS=CRS(prj.wgs))
-b2004.crop <- crop(b2004.wgs, ext) 
-writeOGR(b2004.crop, dsn="data/shapefiles/MTBS_BSmosaics", layer="b2004", driver="ESRI Shapefile")
-rm(list=c('b2004', 'b2004.shp', 'b2004.wgs', 'b2004.crop'))
+#b2004 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_2004.tif")
+#b2004.shp <- rasterToPolygons(b2004)
+#b2004.wgs <- spTransform(b2004.shp, CRS=CRS(prj.wgs))
+#b2004.crop <- crop(b2004.wgs, ext) 
+#writeOGR(b2004.crop, dsn="data/shapefiles/MTBS_BSmosaics", layer="b2004", driver="ESRI Shapefile")
+#rm(list=c('b2004', 'b2004.shp', 'b2004.wgs', 'b2004.crop'))
+b2004.crop <- readOGR(dsn="data/shapefiles/MTBS_BSmosaics", layer="b2004")
 
-b2006 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_2006.tif")
-b2006.shp <- rasterToPolygons(b2006)
-b2006.wgs <- spTransform(b2006.shp, CRS=CRS(prj.wgs))
-b2006.crop <- crop(b2006.wgs, ext) 
-writeOGR(b2006.crop, dsn="data/shapefiles/MTBS_BSmosaics", layer="b2006", driver="ESRI Shapefile")
-rm(list=c('b2006', 'b2006.shp', 'b2006.wgs', 'b2006.crop'))
+#b2006 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_2006.tif")
+#b2006.shp <- rasterToPolygons(b2006)
+#b2006.wgs <- spTransform(b2006.shp, CRS=CRS(prj.wgs))
+#b2006.crop <- crop(b2006.wgs, ext) 
+#writeOGR(b2006.crop, dsn="data/shapefiles/MTBS_BSmosaics", layer="b2006", driver="ESRI Shapefile")
+#rm(list=c('b2006', 'b2006.shp', 'b2006.wgs', 'b2006.crop'))
+b2006.crop <- readOGR(dsn="data/shapefiles/MTBS_BSmosaics", layer="b2006")
 
-b2009 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_2009.tif")
-b2009.wgs <- projectRaster(b2009, crs=prj.wgs)
-b2009.shp <- rasterToPolygons(b2009)
-b2009.wgs <- spTransform(b2009.shp, CRS=CRS(prj.wgs))
-b2009.crop <- crop(b2009.wgs, ext) 
-writeOGR(b2009.crop, dsn="data/shapefiles/MTBS_BSmosaics", layer="b2009", driver="ESRI Shapefile")
-rm(list=c('b2009', 'b2009.shp', 'b2009.wgs', 'b2009.crop'))
+#b2009 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_2009.tif")
+#b2009.wgs <- projectRaster(b2009, crs=prj.wgs)
+#b2009.shp <- rasterToPolygons(b2009)
+#b2009.wgs <- spTransform(b2009.shp, CRS=CRS(prj.wgs))
+#b2009.crop <- crop(b2009.wgs, ext) 
+#writeOGR(b2009.crop, dsn="data/shapefiles/MTBS_BSmosaics", layer="b2009", driver="ESRI Shapefile")
+#rm(list=c('b2009', 'b2009.shp', 'b2009.wgs', 'b2009.crop'))
+b2009.crop <- readOGR(dsn="data/shapefiles/MTBS_BSmosaics", layer="b2009")
 
-b2010 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_2010.tif")
-b2010.shp <- rasterToPolygons(b2010)
-b2010.wgs <- spTransform(b2010.shp, CRS=CRS(prj.wgs))
-b2010.crop <- crop(b2010.wgs, ext) 
-writeOGR(b2010.crop, dsn="data/shapefiles/MTBS_BSmosaics", layer="b2010", driver="ESRI Shapefile")
-rm(list=c('b2010', 'b2010.shp', 'b2010.wgs', 'b2010.crop'))
+#b2010 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_2010.tif")
+#b2010.shp <- rasterToPolygons(b2010)
+#b2010.wgs <- spTransform(b2010.shp, CRS=CRS(prj.wgs))
+#b2010.crop <- crop(b2010.wgs, ext) 
+#writeOGR(b2010.crop, dsn="data/shapefiles/MTBS_BSmosaics", layer="b2010", driver="ESRI Shapefile")
+#rm(list=c('b2010', 'b2010.shp', 'b2010.wgs', 'b2010.crop'))
+b2010.crop <- readOGR(dsn="data/shapefiles/MTBS_BSmosaics", layer="b2010")
 
-b2014 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_2014.tif")
-b2014.shp <- rasterToPolygons(b2014)
-b2014.wgs <- spTransform(b2014.shp, CRS=CRS(prj.wgs))
-b2014.crop <- crop(b2014.wgs, ext) 
-writeOGR(b2014.crop, dsn="data/shapefiles/MTBS_BSmosaics", layer="b2014", driver="ESRI Shapefile")
-rm(list=c('b2014', 'b2014.shp', 'b2014.wgs', 'b2014.crop'))
+#b2014 <- raster("data/shapefiles/MTBS_BSmosaics/mtbs_WA_2014.tif")
+#b2014.shp <- rasterToPolygons(b2014)
+#b2014.wgs <- spTransform(b2014.shp, CRS=CRS(prj.wgs))
+#b2014.crop <- crop(b2014.wgs, ext) 
+#writeOGR(b2014.crop, dsn="data/shapefiles/MTBS_BSmosaics", layer="b2014", driver="ESRI Shapefile")
+#rm(list=c('b2014', 'b2014.shp', 'b2014.wgs', 'b2014.crop'))
+b2014.crop <- readOGR(dsn="data/shapefiles/MTBS_BSmosaics", layer="b2014")
 
-#stack
-severity <- stack(b1990, b1993)
 
 # USA polygons (used for lat/lon gridlines) 
 sta = readOGR("data/shapefiles/states/gz_2010_us_040_00_500k.shp")
@@ -373,32 +379,41 @@ ggplot(data=dat.burn.distances.tall, aes(x=BurnPlotDist)) +
   xlab("Distance from legacy presences to burned plots (km)") 
 
 
-### What kinds of burns did burned plots experience? Categorize as natural, prescribed, etc.
+### What kinds of burns did burned plots experience? Categorize as natural, prescribed, etc. Also check burn severity.
 
 # Spatial vector of polygons created from different fire maps
 fires.vect <- vect(fires)
 prescr.vect <- vect(burns) 
 trtmts.vec <- vect(trtmts)
+b1990.vec <- vect(b1990.crop)
+b1994.vec <- vect(b1994.crop)
 
 # Check projections - all the same
 prj.fires <- crs(fires.vect)                     
 prj.prescr <- crs(prescr.vect)                     
-prj.trtmts <- crs(trtmts.vec)                     
+prj.trtmts <- crs(trtmts.vec) 
+prj.b1994 <- crs(b1994.vec)
 
 # Transform plot presences to same projection
 dat.pres.prescr <- spTransform(dat.pres, CRS=CRS(prj.prescr)) #transform projection 
+dat.pres.severity <- spTransform(dat.pres, CRS=CRS(prj.b1994)) #transform projection 
 
 # Transform to sf objects
 pres_pt <- st_as_sf(x = dat.pres.prescr) 
+pres_pt <- st_as_sf(x = dat.pres.severity) 
 fires_poly <- st_as_sf(fires.vect)
 prescr_poly <- st_as_sf(prescr.vect)
 trtmts_poly <- st_as_sf(trtmts.vec)
+b1990_poly <- st_as_sf(b1990.vec)
+b1994_poly <- st_as_sf(b1994.vec)
 
 # New objects with points that are within different fire polygons
 sf_use_s2(FALSE)
 pres_fires <- st_intersection(fires_poly, pres_pt) 
 pres_prescr <- st_intersection(prescr_poly, pres_pt) 
 pres_trtmts <- st_intersection(trtmts_poly, pres_pt) 
+pres_b1990 <- st_intersection(b1990_poly, pres_pt) # no points
+pres_b1994 <- st_intersection(b1994_poly, pres_pt) 
 
 # Convert back to data frames
 pres_fires_df <- pres_fires[, c('CAUSE', 'CAL_YEAR', 'Acres', 'Species.Code', 'Pres.Abs', 'Fires', 'Elevation.m', 'Data.Type', 'Plot.Name.1980', 'Plot.Name.2015')] #extract columns of interest
@@ -476,7 +491,20 @@ table(fire.types$Plot.Name.2015[fire.types$Species.Code=="PAMY"],
       #fire.types$TYPE[fire.types$Species.Code=="PAMY"],
       fire.types$CAL_YEAR[fire.types$Species.Code=="PAMY"])
 
+pres_b1990_df <- pres_b1990[, c('CAUSE', 'CAL_YEAR', 'Acres', 'Species.Code', 'Pres.Abs', 'Fires', 'Elevation.m', 'Data.Type', 'Plot.Name.1980', 'Plot.Name.2015')] #extract columns of interest
+pres_fires_df$lon.lat <- substr(as.character(pres_fires_df$geometry), 3, (nchar(as.character(pres_fires_df$geometry))-1)) #extract lat-long, remove parentheses
+foo <- separate(pres_fires_df, lon.lat, into = c('Longitude', 'Latitude'), sep = ', ') #separate by lon, lat
+pres_fires_df <- as.data.frame(foo) #remove spatial attributes
+pres_fires_df$Longitude <- as.numeric(pres_fires_df$Longitude) #turn lon-lat to numeric
+pres_fires_df$Latitude <- as.numeric(pres_fires_df$Latitude)
+colnames(pres_fires_df)[1] <- "TYPE"
+colnames(pres_fires_df)[3] <- "ACRES"
+unique(pres_fires_df$ACRES)
+unique(pres_fires_df$Plot.Name.2015)
+table(pres_fires_df$TYPE,
+      pres_fires_df$Plot.Name.2015,
+      pres_fires_df$CAL_YEAR)
 
 
-
-
+# Suppl table of fire characteristics
+# Columns = plot name, elevation, burn type (natural lightning, human accidental, human management), burn year, burn area, burn severity, species richness? # fire species?
