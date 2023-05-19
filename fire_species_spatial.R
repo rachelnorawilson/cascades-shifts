@@ -373,10 +373,12 @@ dat.burn.distances <- bind_cols(as.data.frame(dat.pres.leg), as.data.frame(dist.
 # Make taller dataframe
 dat.burn.distances.tall <- pivot_longer(dat.burn.distances, cols=starts_with("V"), values_to="BurnPlotDist")
 
+pdf(file="figures/FigureSx_supp_distancetoburn.pdf", width=10, height=8)
 ggplot(data=dat.burn.distances.tall, aes(x=BurnPlotDist)) +
   geom_histogram() +
   facet_wrap(~Species.Code) +
   xlab("Distance from legacy presences to burned plots (km)") 
+dev.off()
 
 
 ### What kinds of burns did burned plots experience? Categorize as natural, prescribed, etc. Also check burn severity.
@@ -400,7 +402,7 @@ dat.pres.severity <- spTransform(dat.pres, CRS=CRS(prj.b1994)) #transform projec
 
 # Transform to sf objects
 pres_pt <- st_as_sf(x = dat.pres.prescr) 
-pres_pt <- st_as_sf(x = dat.pres.severity) 
+#pres_pt <- st_as_sf(x = dat.pres.severity) 
 fires_poly <- st_as_sf(fires.vect)
 prescr_poly <- st_as_sf(prescr.vect)
 trtmts_poly <- st_as_sf(trtmts.vec)
@@ -427,12 +429,15 @@ colnames(pres_fires_df)[3] <- "ACRES"
 unique(pres_fires_df$ACRES)
 unique(pres_fires_df$Plot.Name.2015)
 table(pres_fires_df$TYPE,
-      pres_fires_df$Plot.Name.2015,
-      pres_fires_df$CAL_YEAR)
+      pres_fires_df$CAL_YEAR,
+      pres_fires_df$Plot.Name.2015
+      )
 table(pres_fires_df$Plot.Name.2015,
       pres_fires_df$TYPE)
 table(pres_fires_df$TYPE,
       pres_fires_df$CAL_YEAR)
+table(pres_fires_df$CAL_YEAR, 
+      pres_fires_df$ACRES)
 
 pres_prescr_df <- pres_prescr[, c('NAME', 'CAL_YEAR', 'ACRES', 'Species.Code', 'Pres.Abs', 'Fires', 'Elevation.m', 'Data.Type', 'Plot.Name.1980', 'Plot.Name.2015')] #extract columns of interest
 pres_prescr_df$lon.lat <- substr(as.character(pres_prescr_df$geometry), 3, (nchar(as.character(pres_prescr_df$geometry))-1)) #extract lat-long, remove parentheses
@@ -447,8 +452,11 @@ table(pres_prescr_df$Plot.Name.2015,
       pres_prescr_df$CAL_YEAR)
 table(pres_prescr_df$Plot.Name.2015,
       pres_prescr_df$TYPE)
+table(pres_prescr_df$CAL_YEAR, 
+      pres_prescr_df$ACRES)
 
-pres_trtmts_df <- pres_trtmts[, c('Treatment', 'TreatYear', 'acres', 'Species.Code', 'Pres.Abs', 'Fires', 'Elevation.m', 'Data.Type', 'Plot.Name.1980', 'Plot.Name.2015')] #extract columns of interest
+pres_trtmts_df <- pres_trtmts[, c('Treatment', 'TreatYear', 'acres', 'Species.Code', 'Pres.Abs', 'Fires', 'Elevation.m', 'Data.Type', 'Plot.Name.1980', 'Plot.Name.2015')] %>% #extract columns of interest 
+  filter(Treatment=="RX"|Treatment=="Underburn"|Treatment=="Hand Pile & Underburn")
 pres_trtmts_df$lon.lat <- substr(as.character(pres_trtmts_df$geometry), 3, (nchar(as.character(pres_trtmts_df$geometry))-1)) #extract lat-long, remove parentheses
 foo <- separate(pres_trtmts_df, lon.lat, into = c('Longitude', 'Latitude'), sep = ', ') #separate by lon, lat
 pres_trtmts_df <- as.data.frame(foo) #remove spatial attributes
@@ -464,11 +472,15 @@ table(pres_trtmts_df$Plot.Name.2015,
 table(pres_trtmts_df$Plot.Name.2015,
       pres_trtmts_df$TYPE, 
       pres_trtmts_df$CAL_YEAR)
+table(pres_trtmts_df$CAL_YEAR, 
+      pres_trtmts_df$ACRES)
 
-fire.types <- rbind(pres_fires_df, pres_prescr_df, pres_trtmts_df)
+fire.types <- rbind(pres_fires_df, pres_prescr_df, pres_trtmts_df) 
 
-table(fire.types$Plot.Name.2015, 
+plot_burn_types <- table(fire.types$Plot.Name.2015, 
       fire.types$TYPE)
+write.csv(plot_burn_types, 'data/supp_plot_fire_types.csv')
+
 table(fire.types$Plot.Name.2015[fire.types$Species.Code=="ACMI"], 
       fire.types$TYPE[fire.types$Species.Code=="ACMI"],
       fire.types$CAL_YEAR[fire.types$Species.Code=="ACMI"])
@@ -490,6 +502,8 @@ table(fire.types$Plot.Name.2015[fire.types$Species.Code=="EPAN"],
 table(fire.types$Plot.Name.2015[fire.types$Species.Code=="PAMY"], 
       #fire.types$TYPE[fire.types$Species.Code=="PAMY"],
       fire.types$CAL_YEAR[fire.types$Species.Code=="PAMY"])
+
+
 
 pres_b1990_df <- pres_b1990[, c('CAUSE', 'CAL_YEAR', 'Acres', 'Species.Code', 'Pres.Abs', 'Fires', 'Elevation.m', 'Data.Type', 'Plot.Name.1980', 'Plot.Name.2015')] #extract columns of interest
 pres_fires_df$lon.lat <- substr(as.character(pres_fires_df$geometry), 3, (nchar(as.character(pres_fires_df$geometry))-1)) #extract lat-long, remove parentheses
