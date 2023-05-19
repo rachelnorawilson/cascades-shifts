@@ -244,10 +244,11 @@ rarefied.change.tall.perc <- bind_rows(rarefied.change.tall.nofire.perc, rarefie
 level_order.perc = c("rear.change.perc", "med.change", "lead.change.perc")
 
 # Violins by range position
-violin.plot.perc <- ggplot(rarefied.change.tall.perc, aes(x=factor(edge, level=level_order.perc), y=change, fill=fire)) +#, color=edge, fill=edge)) + 
-  geom_violin() +
-  scale_fill_viridis(discrete=TRUE, alpha=0.7) +
-  #stat_summary(fun=mean, geom="point", cex=2)  +
+violin.plot.perc <- ggplot(rarefied.change.tall.perc, aes(x=factor(edge, level=level_order.perc), y=change, fill=fire)) + 
+  geom_violin(aes(fill=fire), trim=FALSE, position="dodge") +
+  scale_fill_viridis(discrete=TRUE, alpha=0.5) +
+  stat_summary(fun.data="mean_sdl", fun.args = list(mult=1), geom="pointrange", position=position_dodge(0.9), cex=0.7)  +
+  geom_dotplot(binaxis='y', stackdir='center', dotsize=0.5, position=position_jitterdodge(jitter.width=0.1, jitter.height=10, dodge.width=0.9)) +
   theme_classic() +
   geom_hline(yintercept=0, lty="dashed") +
   xlab("") +
