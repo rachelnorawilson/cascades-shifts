@@ -74,6 +74,10 @@ projection(dat.pres) <- CRS('+proj=longlat') #define projection
 dat.pres <- spTransform(dat.pres, CRS=CRS(prj.wgs)) #transform projection 
 dat.pres.lcc <- spTransform(dat.pres, CRS=CRS(prj.lcc)) #transform projection 
 
+coordinates(plots) <- ~Longitude+Latitude #convert to spatial data
+projection(plots) <- CRS('+proj=longlat') #define projection
+dat.plots <- spTransform(plots, CRS=CRS(prj.wgs)) #transform projection 
+
 # Define extent of study area
 ext <- extent(min(dat.pres$Longitude)-0.25, max(dat.pres$Longitude)+0.5, min(dat.pres$Latitude)-0.5, max(dat.pres$Latitude)+0.25)
 bbox <- as(ext, "SpatialPolygons") #convert coordinates to a bounding box
@@ -312,9 +316,11 @@ prj.reg <- crs(regions)
 
 # Transform plot presences to same projection
 dat.pres.reg <- spTransform(dat.pres, CRS=CRS(prj.reg)) #transform projection 
+dat.plots.reg <- spTransform(dat.plots, CRS=CRS(prj.reg)) #transform projection 
 
 # Transform to sf objects
 pres_pt <- st_as_sf(x = dat.pres.reg)#, 
+plot_pt <- st_as_sf(x = dat.plots.reg)#, 
 ecoregion_poly <- st_as_sf(regions)
 
 # Check that points map onto polygon
@@ -323,23 +329,33 @@ points(pres_pt, cex=2) # not showing up
 
 # New object with points that are within ecoregion polygon
 pres_ecoregion <- st_intersection(ecoregion_poly, pres_pt) 
+plots_ecoregion <- st_intersection(ecoregion_poly, plot_pt)
 
 # Convert back to data frame
 # Extract columns of interest
 pres_reg_df <- pres_ecoregion[, c('NAME', 'geometry', 'Species.Code', 'Pres.Abs', 'Fires', 'Elevation.m', 'Data.Type', 'Plot.Name.1980', 'Plot.Name.2015')] 
-# Extrat lat-long
-pres_reg_df$lon.lat <- substr(as.character(pres_reg_df$geometry), 3, (nchar(as.character(pres_reg_df$geometry))-1)) #remove parentheses
+plots_reg_df <- plots_ecoregion[, c('NAME', 'geometry', 'Plot.Name.1980', 'Plot.Name.2015')] 
 
+# Extract lat-long
+pres_reg_df$lon.lat <- substr(as.character(pres_reg_df$geometry), 3, (nchar(as.character(pres_reg_df$geometry))-1)) #remove parentheses
 foo <- separate(pres_reg_df, lon.lat, into = c('Longitude', 'Latitude'), sep = ', ') #separate by lon, lat
 pres_reg_df <- as.data.frame(foo) #remove spatial attributes
-
 pres_reg_df$Longitude <- as.numeric(pres_reg_df$Longitude) #turn lon-lat to numeric
 pres_reg_df$Latitude <- as.numeric(pres_reg_df$Latitude)
+
+plots_reg_df$lon.lat <- substr(as.character(plots_reg_df$geometry), 3, (nchar(as.character(plots_reg_df$geometry))-1)) #remove parentheses
+foo <- separate(plots_reg_df, lon.lat, into = c('Longitude', 'Latitude'), sep = ', ') #separate by lon, lat
+plots_reg_df <- as.data.frame(foo) #remove spatial attributes
+plots_reg_df$Longitude <- as.numeric(plots_reg_df$Longitude) #turn lon-lat to numeric
+plots_reg_df$Latitude <- as.numeric(plots_reg_df$Latitude)
+plots_reg_df <- plots_reg_df %>% dplyr::select(-geometry)
 
 table(pres_reg_df$NAME, 
       pres_reg_df$Species.Code, 
       pres_reg_df$Data.Type)
 
+table(plots_reg_df$NAME)
+write.csv(plots_reg_df, "data/plot_regions.csv")
 
 ### What is distribution of distances between a species' historical presences and burned plots? (i.e., what was opportunity to colonize burned areas?)
 
