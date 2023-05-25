@@ -61,7 +61,6 @@ dat.all <- bind_rows(dat.leg, dat.res) %>% # this now has plot locations and plo
 
 dat.pres <- filter(dat.all, Pres.Abs==1)
 
-
 ### Set up maps
 
 # Define projections
@@ -493,9 +492,10 @@ table(pres_trtmts_df$CAL_YEAR,
 
 fire.types <- rbind(pres_fires_df, pres_prescr_df, pres_trtmts_df) 
 
-plot_burn_types <- table(fire.types$Plot.Name.2015, 
-      fire.types$TYPE)
-write.csv(plot_burn_types, 'data/supp_plot_fire_types.csv')
+fire.table <- fire.types %>% 
+  dplyr::select(Plot.Name.1980, Plot.Name.2015, Latitude, Longitude, Elevation.m, TYPE, CAL_YEAR, ACRES) %>% 
+  unique()
+write.csv(fire.table, 'data/supp_plot_fire_types.csv')
 
 table(fire.types$Plot.Name.2015[fire.types$Species.Code=="ACMI"], 
       fire.types$TYPE[fire.types$Species.Code=="ACMI"],
