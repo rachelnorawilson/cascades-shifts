@@ -5,7 +5,7 @@
 # It will NOT produce the final version of the analysis, but is instead used for logging 
 # model warnings and framework-switching (fire vs. no fire). 
 
-# Part of this script creates a ~16 MB worth of 4,200+ text logs and places them in a folder
+# Part of this script creates ~16 MB worth of 4,200+ text logs and places them in a folder
 # "warning_logs"; these are not stored on GitHub but can be shared upon request and/or
 # reproduced locally. User will need to adjust the destination directory (lines 102 and 104).
 
