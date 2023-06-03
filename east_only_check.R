@@ -2,7 +2,7 @@
 
 # This script will NOT produce the final version of the analysis.
 # It is solely for determining whether subsetting to east-side plots affects
-# fire-experiencing species patterns.
+# fire-experiencing species patterns. It is essentially a copy of script 3b.
 
 # Part of this script creates a large file and places it in a folder
 # "warning_logs"; these are not stored on GitHub but can be shared upon request and/or
