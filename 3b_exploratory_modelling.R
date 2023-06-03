@@ -63,7 +63,7 @@ for(D in 1:100) {
 
 #### STEP 2: Loop to analyze presence data ####
 
-# Can be run as a loop outputting all species, or S can be modified to isolated specific species. Check number here:
+# Can be run as a loop outputting all species, or S can be modified to isolate specific species. Check number here:
 (numbered.species <- data.frame(Species=species.list, No.=rep(1:42)))
 # Exclude D loop to run for only one dataset (e.g. unrarefied data)
 
