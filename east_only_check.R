@@ -16,6 +16,8 @@
 
 ################# SCRIPT 3B ANALOGUE ###############
 
+###### NOTE TO RACHEL: You will murder GitHub if you try to push 700 error logs. Just delete them locally - they aren't needed
+
 # Packages needed:
 
 library(MuMIn)
@@ -285,14 +287,14 @@ coeff.ALLDAT.finaldf <- ldply(coeff.ALLDAT, data.frame)
 warn.ALLDAT.finaldf <- ldply(warn.ALLDAT, data.frame)
 
 
-# Store output as CSV
+# Store output as CSV. I have manually deleted these files but they can be regenerated
 
-write.csv(coeff.ALLDAT.finaldf, 
-          file = "data/TEMP_eastonly_3_presence_ALLDAT_ALLSPEC_coefficients.csv", 
-          row.names = FALSE)
-write.csv(warn.ALLDAT.finaldf, 
-          file = "data/TEMP_eastonly_3_presence_ALLDAT_ALLSPEC_warnings.csv", 
-          row.names = FALSE)
+#write.csv(coeff.ALLDAT.finaldf, 
+ #         file = "data/TEMP_eastonly_3_presence_ALLDAT_ALLSPEC_coefficients.csv", 
+  #        row.names = FALSE) 
+#write.csv(warn.ALLDAT.finaldf, 
+ #         file = "data/TEMP_eastonly_3_presence_ALLDAT_ALLSPEC_warnings.csv", 
+  #        row.names = FALSE)
 
 
 ###################### SCRIPT 3C ANALOGUE #########################
@@ -385,7 +387,9 @@ for(D in 1:100) { #RUN TIME: 5 min
   coeff.ALLSPEC <- list()
   avg.confint.ALLSPEC <- list() 
   framework.ALLSPEC <- list()
-  und.presence <- rare.ALL[[D]]
+  und.presence.init <- rare.ALL[[D]]
+  und.presence <- und.presence.init[und.presence.init$Plot %in% east.list, ]
+  und.presence$Plot <- factor(und.presence$Plot)
   und.presence$Elevation.m <- as.numeric(und.presence$Elevation.m)
   und.presence$New.Data.Type <- factor(und.presence$New.Data.Type)
   und.presence$Fires <- as.factor(und.presence$Fires)
@@ -819,191 +823,229 @@ avg.confint.ALLDAT.finaldf.big <-
 coeff.ALLDAT.finaldf <- coeff.ALLDAT.finaldf.big[, c(2:22)]
 avg.confint.ALLDAT.finaldf <- avg.confint.ALLDAT.finaldf.big[, c(2:31)]
 
-# Store output as CSV
+# Store output as CSV. I manually deleted these files later
 
 write.csv(coeff.ALLDAT.finaldf, 
-          file = "data/3c_new_coefficients.csv", 
+          file = "data/TEMP_eastonly_3c_new_coefficients.csv", 
           row.names = FALSE)
 write.csv(avg.confint.ALLDAT.finaldf, 
-          file = "data/3c_new_confint.csv", 
+          file = "data/TEMP_eastonly_3c_new_confint.csv", 
           row.names = FALSE)
 write.csv(framework.ALLDAT.allsets, 
-          file = "data/3c_new_framework_logs.csv", 
+          file = "data/TEMP_eastonly_3c_new_framework_logs.csv", 
           row.names = FALSE)
 
 
 
-###################### SCRIPT 4A ANALOGUE ########################################
+################### SCRIPT 6 ANALOGUE ####################
+
+#### This script visualizes model-averaged predictions for each rarefied dataset
+
+library(tidyverse)
+library(cowplot)
+
+#### Read in and prepare tables of coefficients
+
+# coefficients from all top models for each rarefied dataset that ran without warnings
+# these models use the poly() formulaton for orthogonal elevation^2 terms
+coeff.ALLDAT <- read.csv("data/TEMP_eastonly_3c_new_coefficients.csv", header = TRUE)
+
+# filter to just model average for each rarefied dataset
+coeff.avgs <- coeff.ALLDAT %>% filter(Type=="Avg") # now we have up to 100 model averages per species (<100 for the species for which some rarefied datasets threw warnings)
+
+# split into species modeled with fire vs without
+coeffs.fire <- coeff.avgs %>% filter(Fire.Included=="Yes")
+coeffs.nofire <- coeff.avgs %>% filter(Fire.Included=="No")
+
+# species lists for ugly loops below
+species.list.fire <- coeffs.fire %>% 
+  group_by(Species) %>% 
+  summarise(Species=first(Species))
+species.list.nofire <- coeffs.nofire %>% 
+  group_by(Species) %>% 
+  summarise(Species=first(Species))
 
 
+#### Elevation vectors for multiplying by coefficients
 
-# Everything below is essentially a carbon copy of script 4a, used for reviewing model fitting errors
+# values in poly-transformed units
+dat <- read_csv("data/3d_transformed_polynomials.csv")
 
-# Functions needed:
+# linear term vector
+# range based on min/max values 
+elev.vec.lin = as.numeric(seq(min(dat$Elevation.m.poly), max(dat$Elevation.m.poly), by=0.0001)) 
 
-# Turning averaged coefficients into +/-/0
-simplify.fun <- function(varib) {
-  coeff.summary.SPEC <- coeff.summary.empty[varib]
-  dataset.vect <- as.vector(coeff.SPEC.avg$Dataset)
-  for(d in dataset.vect) {
-    if(coeff.SPEC.avg[coeff.SPEC.avg$Dataset == d, varib] > 0) {
-      coeff.summary.SPEC[d, varib] <- paste("+")
-    }
-    if(coeff.SPEC.avg[coeff.SPEC.avg$Dataset == d, varib] == 0) {
-      coeff.summary.SPEC[d, varib] <- paste("0")
-    }
-    if(coeff.SPEC.avg[coeff.SPEC.avg$Dataset == d, varib] < 0) {
-      coeff.summary.SPEC[d, varib] <- paste("-")
-    }
+# quadratic term vector
+# quadratic function is given by this model
+poly.mod <- lm(Elevation.m2.poly ~ Elevation.m.poly + I(Elevation.m.poly^2), data=dat)
+
+elev.vec.quad = poly.mod$coefficients[1] + 
+  elev.vec.lin*poly.mod$coefficients[2] + 
+  elev.vec.lin*elev.vec.lin*poly.mod$coefficients[3]
+
+# elevation list for back-transformed axis labels
+# needs to be in raw units (m)
+back.mod <- lm(Elevation.m.poly ~ Elevation.m, data=dat)
+raw.ticks = c(100, 600, 1100, 1600, 2100)
+poly.ticks = back.mod$coefficients[1] + raw.ticks*back.mod$coefficients[2]
+
+
+#### other prep work
+
+# function for converting predictions to 0-1 response scale
+response = function(y) {
+  exp(as.numeric(y))/(1+exp(as.numeric(y)))
+}
+
+# color palettes 
+# for fire species
+col.pal.fire <- c("turquoise4", "red3", "goldenrod1")
+# for no-fire species
+col.pal.nofire <- c("turquoise4", "goldenrod1")
+
+
+#### FIRE SPECIES: big loop to calculate predicted values across each rarefaction for each species
+
+# empty matrices for writing best-fit lines into
+pred.leg.reps = matrix(nrow=length(elev.vec.lin),ncol=100)
+pred.res.unburn.reps = matrix(nrow=length(elev.vec.lin),ncol=100)
+pred.res.burn.reps = matrix(nrow=length(elev.vec.lin),ncol=100)
+
+for (i in 1:dim(species.list.fire)[1]) {
+  sp = as.list(species.list.fire[i,1]) 
+  mods <- coeffs.fire %>% 
+    filter(Species==sp) %>% 
+    select(Int=Intercept, 
+           Elev=Elevation.m, 
+           Elev2=Elevation.m2, 
+           ResurvBurn = Resurvey.Burned.fi,
+           ResurvUnburn = Resurvey.Unburned.fi,
+           ResurvBurnxElev = Elevation.m.Res.Burn.fi,
+           ResurvBurnxElev2 = Elevation.m2.Res.Burn.fi,
+           ResurvUnburnxElev = Elevation.m2.Res.Unburn.fi,
+           ResurvUnburnXElev2 = Elevation.m2.Res.Unburn.fi) %>% 
+    mutate_if(is.numeric, ~replace(., is.na(.), 0))
+  
+  for (j in 1:dim(mods)[1]) {
+    pred.leg.reps[,j] = mods$Int[j] + mods$Elev[j]*elev.vec.lin + mods$Elev2[j]*elev.vec.quad
+    
+    pred.res.unburn.reps[,j] = mods$Int[j] + mods$Elev[j]*elev.vec.lin + mods$Elev2[j]*elev.vec.quad + mods$ResurvUnburn[j] + mods$ResurvUnburnxElev[j]*elev.vec.lin + mods$ResurvUnburnXElev2[j]*elev.vec.quad
+    
+    pred.res.burn.reps[,j] = mods$Int[j] + mods$Elev[j]*elev.vec.lin + mods$Elev2[j]*elev.vec.quad + mods$ResurvBurn[j] + mods$ResurvBurnxElev[j]*elev.vec.lin 
+    + mods$ResurvBurnxElev2[j]*elev.vec.quad
   }
-  return(coeff.summary.SPEC)
-}
-
-# Summing numbers of +/-/0 for each coeff for one species
-# Empty data frame
-coeff.count.empty <- data.frame(Elevation.m = rep(NA, times = 4), 
-                                Elevation.m2 = rep(NA, times = 4), 
-                                Resurvey.Burned.fi = rep(NA, times = 4), 
-                                Resurvey.Unburned.fi = rep(NA, times = 4), 
-                                Elevation.m.Res.Burn.fi = rep(NA, times = 4), 
-                                Elevation.m.Res.Unburn.fi = rep(NA, times = 4), 
-                                Elevation.m2.Res.Burn.fi = rep(NA, times = 4), 
-                                Elevation.m2.Res.Unburn.fi = rep(NA, times = 4), 
-                                Data.Type.nofi = rep(NA, times = 4), 
-                                Data.Type.Elevation.m.nofi = rep(NA, times = 4), 
-                                Data.Type.Elevation.m2.nofi = rep(NA, times = 4),
-                                row.names = c("+", "-", 0, "Ignore"))
-
-# Collapsing 100 rows of +/-/0 into summary
-count.fun <- function(varib) {
-  df.count <- coeff.count.empty[varib]
-  if(is.na(table(simple.coeffs.SPEC[varib])["+"]) == FALSE) {
-    df.count["+", varib] <- table(simple.coeffs.SPEC[varib])["+"]
-  } 
-  if(is.na(table(simple.coeffs.SPEC[varib])["-"]) == FALSE) {
-    df.count["-", varib] <- table(simple.coeffs.SPEC[varib])["-"]
-  } 
-  if(is.na(table(simple.coeffs.SPEC[varib])["0"]) == FALSE) {
-    df.count["0", varib] <- table(simple.coeffs.SPEC[varib])["0"]
-  } 
-  if(is.na(table(simple.coeffs.SPEC[varib])["Ignore"]) == FALSE) {
-    df.count["Ignore", varib] <- table(simple.coeffs.SPEC[varib])["Ignore"]
-  } 
-  return(df.count)
-}
-
-
-#### STEP 1: Import data
-
-warn.ALLDAT <- warn.ALLDAT.finaldf
-
-# Can use either top_mod input (script stored outside of GitHub) or new_coefficients input
-coeff.ALLDAT <- coeff.ALLDAT.finaldf
-coeff.ALLDAT[is.na(coeff.ALLDAT)] <- paste(0)
-
-
-#### STEP 2 (OPTIONAL): Exploratory visualizations of warnings
-
-(numbered.species <- data.frame(Species=species.list, No.=rep(1:length(species.list))))
-
-# Choose species of interest
-warn.SPEC <- warn.ALLDAT[warn.ALLDAT$Species == "ACMI", ]
-
-# Assess  warnings
-table(warn.SPEC$Has_warning, warn.SPEC$Dataset)
-table(table(warn.SPEC$Has_warning, warn.SPEC$Dataset))
-head(warn.SPEC[warn.SPEC$Has_warning == TRUE, ])
-
-# (Optional): How did rarefaction vary between species? #
-#par(mar=c(5, 1.5, 1, 0), oma=c(0,4,0,0)) # 3-paneled graph
-#hist(coeff.SPEC$R.Occ, main = "RHAL", xlab = "No. resurvey occ", ylab = "Frequency")
-
-
-#### STEP 3: Exploring coefficients
-
-coeff.count.LIST <- list()
-coeff.perc.LIST <- list()
-
-for(S in 1:nrow(numbered.species)) { # Run time: 5 sec
-  #coeff.SPEC.avg <- coeff.ALLDAT[coeff.ALLDAT$Species == levels(numbered.species$Species)[S], ]
-  coeff.SPEC.avg <- coeff.ALLDAT[coeff.ALLDAT$Species == levels(numbered.species$Species)[S] & 
-                                   coeff.ALLDAT$Type == "Avg", ]
   
-  coeff.summary.empty <- data.frame(Elevation.m = rep(NA, times = 100), 
-                                    Elevation.m2 = rep(NA, times = 100), 
-                                    Resurvey.Burned.fi = rep(NA, times = 100), 
-                                    Resurvey.Unburned.fi = rep(NA, times = 100), 
-                                    Elevation.m.Res.Burn.fi = rep(NA, times = 100), 
-                                    Elevation.m.Res.Unburn.fi = rep(NA, times = 100), 
-                                    Elevation.m2.Res.Burn.fi = rep(NA, times = 100), 
-                                    Elevation.m2.Res.Unburn.fi = rep(NA, times = 100), 
-                                    Data.Type.nofi = rep(NA, times = 100), 
-                                    Data.Type.Elevation.m.nofi = rep(NA, times = 100), 
-                                    Data.Type.Elevation.m2.nofi = rep(NA, times = 100))
+  t1.unburn.reps <- as.data.frame(cbind(elev.vec.lin, 'legacy', pred.leg.reps)) %>% 
+    mutate(across(c(3:102), response))
+  t1.unburn.reps.tall <- gather(t1.unburn.reps, "rep", "preds", 3:102) %>% 
+    mutate(elev.vec.lin = as.numeric(elev.vec.lin))
+  t1.unburn.summary <- t1.unburn.reps.tall %>% 
+    group_by(V2, elev.vec.lin) %>% 
+    summarise(mean.resp = mean(preds),
+              lower.resp = unname(quantile(preds, c(0.05))),
+              upper.resp = unname(quantile(preds, c(0.95))))
+  t2.unburn.reps <- as.data.frame(cbind(elev.vec.lin, 'res.unburn', pred.res.unburn.reps)) %>% 
+    mutate(across(c(3:102), response))
+  t2.unburn.reps.tall <- gather(t2.unburn.reps, "rep", "preds", 3:102) %>% 
+    mutate(elev.vec.lin = as.numeric(elev.vec.lin))
+  t2.unburn.summary <- t2.unburn.reps.tall %>% 
+    group_by(V2, elev.vec.lin) %>% 
+    summarise(mean.resp = mean(preds),
+              lower.resp = unname(quantile(preds, c(0.05))),
+              upper.resp = unname(quantile(preds, c(0.95))))
+  t2.burn.reps <- as.data.frame(cbind(elev.vec.lin, 'res.burn', pred.res.burn.reps)) %>% 
+    mutate(across(c(3:102), response))
+  t2.burn.reps.tall <- gather(t2.burn.reps, "rep", "preds", 3:102) %>% 
+    mutate(elev.vec.lin = as.numeric(elev.vec.lin))
+  t2.burn.summary <- t2.burn.reps.tall %>% 
+    group_by(V2, elev.vec.lin) %>% 
+    summarise(mean.resp = mean(preds),
+              lower.resp = unname(quantile(preds, c(0.05))),
+              upper.resp = unname(quantile(preds, c(0.95))))
+  graph.dat.tall <- bind_rows(t1.unburn.reps.tall, t2.unburn.reps.tall, t2.burn.reps.tall)  
+  graph.dat.means <- bind_rows(t1.unburn.summary, t2.unburn.summary, t2.burn.summary) %>% 
+    mutate(preds = mean.resp)
   
-  simple.coeffs.SPEC <- bind_cols(lapply(names(coeff.summary.empty), simplify.fun))
-  simple.coeffs.SPEC[is.na(simple.coeffs.SPEC)] <- paste("Ignore")
+  gg <- ggplot(graph.dat.means, aes(x = elev.vec.lin, y = preds, color = V2)) + 
+    geom_line(data=graph.dat.tall, aes(group=interaction(V2, rep), color=V2), alpha=0.08, show.legend = FALSE) +
+    geom_line(size=4, linetype="dotted", show.legend=FALSE) +
+    theme_classic() +
+    scale_color_manual("Time x fire", values=col.pal.fire, labels=c("legacy", "resurvey, burned", "resurvey, unburned")) +
+    scale_x_continuous(breaks=poly.ticks, labels=raw.ticks) +
+    xlab("") + #Elevation (m)
+    ylab("") #Probability of presence
   
-  # Summarizing the summary
+  #ggsave(paste("figures/model.preds_ortho_",sp,".pdf",sep=""), gg, width=5, height=5)
   
-  coeff.count.SPEC <- bind_cols((lapply(names(coeff.count.empty), count.fun)))
-  coeff.count.SPEC$Species <- levels(factor(coeff.SPEC.avg$Species))
-  if(length(levels(factor(coeff.SPEC.avg$Fire.Included))) == 1) {
-    coeff.count.SPEC$Fire.Included <- levels(factor(coeff.SPEC.avg$Fire.Included))
-  } else(coeff.count.SPEC$Fire.Included <- "Sometimes")
-  coeff.count.SPEC$Effect <- row.names(coeff.count.SPEC)
-  coeff.count.LIST[[S]] <- coeff.count.SPEC
-  
-  # Converting to % of good datasets
-  good.sets.SPEC <- 
-    sum(coeff.count.SPEC$Elevation.m[!coeff.count.SPEC$Effect == "Ignore"], na.rm = TRUE)
-  coeff.perc.SPEC.A <- data.frame(Species = coeff.count.SPEC$Species,
-                                  Fire.Included = coeff.count.SPEC$Fire.Included,
-                                  Total.Sets = rep(good.sets.SPEC, times = nrow(coeff.count.SPEC)),
-                                  Effect = coeff.count.SPEC$Effect, 
-                                  Elevation.m = coeff.count.SPEC$Elevation.m / good.sets.SPEC,
-                                  Elevation.m2 = coeff.count.SPEC$Elevation.m2 / good.sets.SPEC, 
-                                  Resurvey.Burned.fi = 
-                                    coeff.count.SPEC$Resurvey.Burned.fi / good.sets.SPEC, 
-                                  Resurvey.Unburned.fi = 
-                                    coeff.count.SPEC$Resurvey.Unburned.fi / good.sets.SPEC, 
-                                  Elevation.m.Res.Burn.fi = 
-                                    coeff.count.SPEC$Elevation.m.Res.Burn.fi / good.sets.SPEC, 
-                                  Elevation.m.Res.Unburn.fi = 
-                                    coeff.count.SPEC$Elevation.m.Res.Unburn.fi / good.sets.SPEC, 
-                                  Elevation.m2.Res.Burn.fi = 
-                                    coeff.count.SPEC$Elevation.m2.Res.Burn.fi / good.sets.SPEC, 
-                                  Elevation.m2.Res.Unburn.fi = 
-                                    coeff.count.SPEC$Elevation.m2.Res.Unburn.fi / good.sets.SPEC, 
-                                  Data.Type.nofi =
-                                    coeff.count.SPEC$Data.Type.nofi / good.sets.SPEC, 
-                                  Data.Type.Elevation.m.nofi =
-                                    coeff.count.SPEC$Data.Type.Elevation.m.nofi / good.sets.SPEC,  
-                                  Data.Type.Elevation.m2.nofi = 
-                                    coeff.count.SPEC$Data.Type.Elevation.m2.nofi / good.sets.SPEC)
-  coeff.perc.SPEC.B <- coeff.perc.SPEC.A[!coeff.perc.SPEC.A$Effect == "Ignore", ]
-  coeff.perc.LIST[[S]] <- coeff.perc.SPEC.B
-  
-} # End of loop
+  assign(paste0("preds_graph_",sp), gg)
+} 
 
-coeff.count <- ldply(coeff.count.LIST, data.frame)
-coeff.perc <- ldply(coeff.perc.LIST, data.frame)
+# repeat last plot with legend so that legend can be saved for multi-panel fig
+gg <- ggplot(graph.dat.means, aes(x = elev.vec.lin, y = preds, color = V2)) + 
+  geom_line(data=graph.dat.tall, aes(group=interaction(V2, rep), color=V2), alpha=0.08) +
+  geom_line(size=4, linetype="dotted") +
+  scale_color_manual(values=col.pal.fire, labels=c("1983", "2015, burned", "2015, unburned"), guide = guide_legend(title=NULL)) +
+  theme(legend.title=element_blank()) +
+  theme_classic() + 
+  theme(legend.key.size=unit(1.5, 'cm')) +
+  theme(legend.text=element_text(size=14))
 
-#write.csv(coeff.count, 
- #         file = "data/4a_presence_coefficients_count.csv", 
-  #        row.names = FALSE)
+legend.fire = get_legend(gg)
 
-
-#write.csv(coeff.perc.fire, 
- #         file = "data/4a_pres_coefficients_percent_fire.csv", row.names = FALSE)
-#write.csv(coeff.perc.nofire, 
-      #    file = "data/4a_pres_coefficients_percent_NOfire.csv", row.names = FALSE)
+preds_graph_ACMI
+preds_graph_ARUV
+preds_graph_CARU
+preds_graph_CEVE
+preds_graph_EPAN
+preds_graph_PAMY
+preds_graph_VAME
 
 
 
+#### FIGURE 4: assemble example species into multi-panel figure
+
+# group subplots
+multi <- plot_grid(legend.fire,
+                   preds_graph_ACMI,
+                   preds_graph_ARUV,
+                   preds_graph_CARU,
+                   preds_graph_CEVE,
+                   preds_graph_EPAN,
+                   preds_graph_PAMY,
+                   preds_graph_VAME,
+                   nrow=2, ncol=4,
+                   labels=c("","A","B","C","D","E","F","G")) +
+  theme(plot.margin = margin(50, 10, 10, 50)) #top, right, bottom, left 
+
+multi.labs <- ggdraw(multi) + 
+  draw_label("ACMI", size=14, x=0.11, y=0.95, hjust=0) +
+  draw_label("ARUV", size=14, x=0.345, y=0.95, hjust=0) +
+  draw_label("CARU", size=14, x=0.57, y=0.95, hjust=0) +
+  draw_label("CEVE", size=14, x=0.8, y=0.95, hjust=0)
+
+multi.x <- ggdraw(add_sub(multi.labs, "Elevation (m)", size=18, x=0.5, y=0.05, hjust=0.5, vjust=0)) 
+
+multi.xy <- ggdraw(add_sub(multi.x, "Probability of presence", size=18, x=0.02, y=2.1, angle=90))
+
+#ggsave("figures/6_Figure4_model_preds_multipanel.pdf", multi.xy, width=12, height=8) 
+# species sillhouette images added in Adobe Illustrator
 
 
-##################### STOP #######################
+### all other species for supplement
 
-# TBD: visualizations
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
