@@ -2,8 +2,11 @@
 
 # This script will NOT produce the final version of the analysis.
 # It is solely for determining whether subsetting to east-side plots affects
-# fire-experiencing species patterns. It includes versions of 3b* (to generate error logs)
-# and script 3c (to run models and create coefficients CSV used in vis)
+# fire-experiencing species patterns. It includes versions of:
+# - 3b* (to generate error logs),
+# - 3c (to run models and create coefficients CSV used in vis),
+# - 6 (to visualize model predictions)
+# - 5 - (to visualize arithmetic changes)
 ## *this script differs from 3b in that it forces all species to conform to fire models.
 
 # Part of this script (3b) creates a large file and places it in a folder
@@ -363,7 +366,7 @@ for(D in 1:100) {
 }
 
 
-#### STEP 2: Loop to analyze presence data ####
+#### STEP 2: Loop to analyze presence data
 
 # Can be run as a loop outputting all species, or S can be modified to isolated specific species. Check number here:
 (numbered.species <- data.frame(Species=species.list, No.=rep(1:length(species.list))))
@@ -980,17 +983,6 @@ for (i in 1:dim(species.list.fire)[1]) {
   assign(paste0("preds_graph_",sp), gg)
 } 
 
-# repeat last plot with legend so that legend can be saved for multi-panel fig
-gg <- ggplot(graph.dat.means, aes(x = elev.vec.lin, y = preds, color = V2)) + 
-  geom_line(data=graph.dat.tall, aes(group=interaction(V2, rep), color=V2), alpha=0.08) +
-  geom_line(size=4, linetype="dotted") +
-  scale_color_manual(values=col.pal.fire, labels=c("1983", "2015, burned", "2015, unburned"), guide = guide_legend(title=NULL)) +
-  theme(legend.title=element_blank()) +
-  theme_classic() + 
-  theme(legend.key.size=unit(1.5, 'cm')) +
-  theme(legend.text=element_text(size=14))
-
-legend.fire = get_legend(gg)
 
 preds_graph_ACMI
 preds_graph_ARUV
@@ -1002,36 +994,6 @@ preds_graph_VAME
 
 
 
-#### FIGURE 4: assemble example species into multi-panel figure
-
-# group subplots
-multi <- plot_grid(legend.fire,
-                   preds_graph_ACMI,
-                   preds_graph_ARUV,
-                   preds_graph_CARU,
-                   preds_graph_CEVE,
-                   preds_graph_EPAN,
-                   preds_graph_PAMY,
-                   preds_graph_VAME,
-                   nrow=2, ncol=4,
-                   labels=c("","A","B","C","D","E","F","G")) +
-  theme(plot.margin = margin(50, 10, 10, 50)) #top, right, bottom, left 
-
-multi.labs <- ggdraw(multi) + 
-  draw_label("ACMI", size=14, x=0.11, y=0.95, hjust=0) +
-  draw_label("ARUV", size=14, x=0.345, y=0.95, hjust=0) +
-  draw_label("CARU", size=14, x=0.57, y=0.95, hjust=0) +
-  draw_label("CEVE", size=14, x=0.8, y=0.95, hjust=0)
-
-multi.x <- ggdraw(add_sub(multi.labs, "Elevation (m)", size=18, x=0.5, y=0.05, hjust=0.5, vjust=0)) 
-
-multi.xy <- ggdraw(add_sub(multi.x, "Probability of presence", size=18, x=0.02, y=2.1, angle=90))
-
-#ggsave("figures/6_Figure4_model_preds_multipanel.pdf", multi.xy, width=12, height=8) 
-# species sillhouette images added in Adobe Illustrator
-
-
-### all other species for supplement
 
 
 
@@ -1043,6 +1005,204 @@ multi.xy <- ggdraw(add_sub(multi.x, "Probability of presence", size=18, x=0.02, 
 
 
 
+
+
+
+
+
+
+
+################# SCRIPT 5 ANALOGUE ###############
+
+
+#### This script summarizes, analyzes, and visualizes arithmetic patterns in rarefied data; see script 6 for visualizing model outputs
+
+### Load libraries
+library(tidyverse)
+library(Hmisc) #for mean_sdl function to put mean+/-SD on violin plots
+library(cowplot) #for multipanel figures
+library(viridis) #for color-vision-friendly palettes
+
+### Load data
+# rarefied data (as list of dataframes named rare.ALL):
+load("data/rare.ALL.Rda")
+
+### Species list
+
+# start with all species
+species.list <- c("ACMI", "ARUV", "CARU", "CEVE", "EPAN", "PAMY", "VAME")
+
+# Load list of plot regions
+regions <- read.csv("data/plot_regions.csv")
+east.regions <- regions[regions$NAME == "East Cascades", 3:4]
+east.list <- c(east.regions$Plot.Name.1980, east.regions$Plot.Name.2015)
+
+# separate out fire species
+species.list.fire <- read.csv("data/TEMP_eastonly_3c_new_coefficients.csv", header = TRUE) %>% 
+  filter(Type=="Avg")  %>% 
+  filter(Fire.Included=="Yes") %>% 
+  group_by(Species) %>% 
+  summarise(Species=first(Species))
+
+
+### Set up empty matrices to store values
+# As above, for fire species
+el.mins.025.leg.fire <- matrix(nrow=100,ncol=dim(species.list.fire)[1])
+el.maxs.975.leg.fire <- matrix(nrow=100,ncol=dim(species.list.fire)[1])
+el.meds.leg.fire <- matrix(nrow=100,ncol=dim(species.list.fire)[1])
+el.mins.025.res.fire <- matrix(nrow=100,ncol=dim(species.list.fire)[1])
+el.maxs.975.res.fire <- matrix(nrow=100,ncol=dim(species.list.fire)[1])
+el.meds.res.fire <- matrix(nrow=100,ncol=dim(species.list.fire)[1])
+el.highshift.975.fire <- matrix(nrow=100,ncol=dim(species.list.fire)[1])
+el.lowshift.025.fire <- matrix(nrow=100,ncol=dim(species.list.fire)[1])
+
+### Clunky for-loops across rarefied datasets by species
+
+## fire species
+for(D in 1:100) { #Run time: ~10 seconds
+  und <- rare.ALL[[D]]
+  und <- und[und$Plot %in% east.list, ]
+  und$Data.Type <- as.factor(und$Data.Type)
+  und$Elevation.m <- as.numeric(und$Elevation.m)
+  for(S in 1:dim(species.list.fire)[1]) {
+    species <- as.list(species.list.fire[S,1])
+    und.SPEC <- und %>% 
+      filter(Species.Code == species) %>% 
+      droplevels()
+    und.presence.SPEC.leg <- und.SPEC %>% 
+      filter(Data.Type=="Legacy" & Pres.Abs==1) %>% 
+      mutate(el.med.leg.fire = median(Elevation.m),
+             el.min.025.leg.fire = quantile(Elevation.m, probs=0.025),
+             el.max.975.leg.fire = quantile(Elevation.m, probs=0.975))
+    und.presence.SPEC.res <- und.SPEC %>% 
+      filter(Data.Type=="Resurvey" & Pres.Abs==1) %>% 
+      mutate(el.med.res.fire = median(Elevation.m),
+             el.min.025.res.fire = quantile(Elevation.m, probs=0.025),
+             el.max.975.res.fire = quantile(Elevation.m, probs=0.975))
+    el.mins.025.leg.fire[D,S] <- und.presence.SPEC.leg$el.min.025.leg.fire[1]
+    el.maxs.975.leg.fire[D,S] <- und.presence.SPEC.leg$el.max.975.leg.fire[1]
+    el.meds.leg.fire[D,S] <- und.presence.SPEC.leg$el.med.leg.fire[1]
+    el.mins.025.res.fire[D,S] <- und.presence.SPEC.res$el.min.025.res.fire[1]
+    el.maxs.975.res.fire[D,S] <- und.presence.SPEC.res$el.max.975.res.fire[1]
+    el.meds.res.fire[D,S] <- und.presence.SPEC.res$el.med.res.fire[1]
+    el.highshift.975.fire[D,S] <- und.presence.SPEC.res$el.max.975.res.fire[1] - und.presence.SPEC.leg$el.max.975.leg.fire[1]
+    el.lowshift.025.fire[D,S] <- und.presence.SPEC.res$el.min.025.res.fire[1] - und.presence.SPEC.leg$el.min.025.leg.fire[1]
+  }
+}
+
+## collapse to means across rarefied replicates
+
+# fire species
+el.mins.025.leg.means.fire <- as.data.frame(el.mins.025.leg.fire) %>% summarise(across(starts_with("V"),mean))
+el.mins.025.res.means.fire <- as.data.frame(el.mins.025.res.fire) %>% summarise(across(starts_with("V"),mean))
+el.maxs.975.leg.means.fire <- as.data.frame(el.maxs.975.leg.fire) %>% summarise(across(starts_with("V"),mean))
+el.maxs.975.res.means.fire <- as.data.frame(el.maxs.975.res.fire) %>% summarise(across(starts_with("V"),mean))
+el.meds.leg.means.fire <- as.data.frame(el.meds.leg.fire) %>% summarise(across(starts_with("V"),mean))
+el.meds.res.means.fire <- as.data.frame(el.meds.res.fire) %>% summarise(across(starts_with("V"),mean))
+el.highshift.means.fire <- as.data.frame(el.highshift.975.fire) %>% summarise(across(starts_with("V"),mean))
+el.highshift.sd.fire <- as.data.frame(el.highshift.975.fire) %>% summarise(across(starts_with("V"),sd))
+el.lowshift.means.fire <- as.data.frame(el.lowshift.025.fire) %>% summarise(across(starts_with("V"),mean))
+el.lowshift.sd.fire <- as.data.frame(el.lowshift.025.fire) %>% summarise(across(starts_with("V"),sd))
+
+## reshape and join into one frame
+
+# fire species
+el.mins.025.leg.tall.fire <- gather(el.mins.025.leg.means.fire, "species", "min.025.leg", 1:dim(species.list.fire)[1])
+el.mins.025.res.tall.fire <- gather(el.mins.025.res.means.fire, "species", "min.025.res", 1:dim(species.list.fire)[1])
+el.maxs.975.leg.tall.fire <- gather(el.maxs.975.leg.means.fire, "species", "max.975.leg", 1:dim(species.list.fire)[1])
+el.maxs.975.res.tall.fire <- gather(el.maxs.975.res.means.fire, "species", "max.975.res", 1:dim(species.list.fire)[1])
+el.meds.leg.tall.fire <- gather(el.meds.leg.means.fire, "species", "med.leg", 1:dim(species.list.fire)[1])
+el.meds.res.tall.fire <- gather(el.meds.res.means.fire, "species", "med.res", 1:dim(species.list.fire)[1])
+el.mean.highshift.95.tall.fire <- gather(el.highshift.means.fire, "species", "mean.high", 1:dim(species.list.fire)[1])
+el.sd.highshift.95.tall.fire <- gather(el.highshift.sd.fire, "species", "sd.high", 1:dim(species.list.fire)[1])
+el.mean.lowshift.95.tall.fire <- gather(el.lowshift.means.fire, "species", "mean.low", 1:dim(species.list.fire)[1])
+el.sd.lowshift.95.tall.fire <- gather(el.lowshift.sd.fire, "species", "sd.low", 1:dim(species.list.fire)[1])
+
+# for plotting and t-tests
+rarefied.change.fire <- left_join(left_join(left_join(left_join(left_join(el.meds.leg.tall.fire, el.meds.res.tall.fire), el.mins.025.leg.tall.fire), el.mins.025.res.tall.fire), el.maxs.975.leg.tall.fire), el.maxs.975.res.tall.fire)
+rarefied.change.fire <- cbind(rarefied.change.fire, species.list.fire)
+rarefied.change.fire$fire <- "yes"
+
+# for supp table
+rarefied.change.fire.supp <- left_join(left_join(left_join(el.mean.highshift.95.tall.fire, el.sd.highshift.95.tall.fire),el.mean.lowshift.95.tall.fire), el.sd.lowshift.95.tall.fire)
+rarefied.change.fire.supp <- cbind(rarefied.change.fire.supp, species.list.fire)
+rarefied.change.fire.supp$fire <- "yes"
+
+## calculate range changes
+
+# fire species
+rarefied.change.fire <- rarefied.change.fire %>% 
+  mutate(rear.change.perc = min.025.res - min.025.leg,
+         med.change = med.res - med.leg,
+         lead.change.perc = max.975.res - max.975.leg)
+
+rarefied.change.calcs <- rarefied.change.fire
+#write.csv(rarefied.change.calcs, "data/5_range.change.calcs_plotting.csv")
+
+rarefied.change.calcs.supp <- rarefied.change.fire.supp
+#write.csv(rarefied.change.calcs, "data/5_range.change.calcs_supptable.csv")
+
+
+### FIGURE 3: VIOLIN PLOTS
+
+# fire species
+rarefied.change.tall.fire.perc <- rarefied.change.calcs %>% 
+  filter(fire=="yes") %>% 
+  select(rear.change.perc, med.change, lead.change.perc) %>% 
+  gather("edge", "change", 1:3) %>% 
+  add_column(fire="yes")
+
+rarefied.change.tall.perc <- rarefied.change.tall.fire.perc
+
+level_order.perc = c("rear.change.perc", "med.change", "lead.change.perc")
+
+# Violins by range position
+violin.plot.perc <- ggplot(rarefied.change.tall.perc, aes(x=factor(edge, level=level_order.perc), y=change, fill=fire)) + 
+  geom_violin(aes(fill=fire), trim=FALSE, position="dodge", fill = "lightyellow", color = "black") +
+  stat_summary(fun.data="mean_sdl", fun.args = list(mult=1), geom="pointrange", position=position_dodge(0.9), cex=0.7)  +
+  theme_classic() +
+  geom_dotplot(binaxis='y', stackdir='center', dotsize=0.5, position=position_jitterdodge(jitter.width=0.1, jitter.height=10, dodge.width=0.9)) +
+  geom_hline(yintercept=0, lty="dashed") +
+  xlab("") +
+  scale_x_discrete(labels=c("Lower\nedge", "Range\ncenter", "Upper\nedge")) +
+  theme(axis.text.x=element_text(size=12)) +
+  ylim(-600,700) +
+  ylab(c("Elevational change (m)\n1983-2015"))
+violin.plot.perc
+
+#ggsave("figures/5_Figure3_violin_1panel_perc.pdf", violin.plot.perc, device="pdf", width=8, height=5) 
+
+### FIGURE 2: Freeman-style elevation ranges
+
+# fire and no-fire species separated
+rarefied.change.calcs.fire <- rarefied.change.calcs %>% 
+  filter(fire=="yes") %>% 
+  mutate(species.rank.med = dense_rank(med.leg)+35, #silly workaround to get unique 4-letter species codes on fire species
+         both.min.perc = pmax(min.025.leg, min.025.res),
+         both.max.perc = pmin(max.975.leg, max.975.res))
+
+rarefied.change.calcs.facet <- rarefied.change.calcs.fire
+
+species.labels <- rarefied.change.calcs.facet$Species[order(rarefied.change.calcs.facet$fire, rarefied.change.calcs.facet$species.rank.med)]
+
+fire.labs <- c("non-fire-experiencing species", "fire-experiencing")
+names(fire.labs) <- c("no", "yes")
+
+p.facet <- ggplot(rarefied.change.calcs.facet) + 
+  geom_rect(aes(xmin=species.rank.med-0.33, xmax=species.rank.med+0.33, ymin=min.025.leg, ymax=max.975.leg), fill = "#F8766D") + # historic range in red; will show areas of range contractions
+  geom_rect(aes(xmin=species.rank.med-0.33, xmax=species.rank.med+0.33, ymin=min.025.res, ymax=max.975.res), fill = "#00BFC4") + # modern range in blue; will show areas of range expansions
+  geom_rect(aes(xmin=species.rank.med-0.33, xmax=species.rank.med+0.33, ymin=both.min.perc, ymax=both.max.perc), fill = "#bdbdbd") + # areas common to both in grey
+  geom_text(aes(x = species.rank.med, y = 0, label = Species), vjust = -0.8, size = 4, angle = 45) +  # Add this line to add labels to the bars
+  facet_grid(. ~ fire, scale="free", space="free", labeller=labeller(fire=fire.labs)) +
+  ylim(0,2200) +
+  xlab("Species") +
+  ylab("Elevation (m)") +
+  theme_bw() +
+  theme(text=element_text(size=16), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.text.x = element_text(angle=90, hjust=0, vjust=0.5)) +
+  scale_x_discrete()
+p.facet
+
+# ggsave("figures/5_Figure2_elevation_ranges_2panel.pdf", p.facet, device="pdf", width=11, height=8) 
 
 
 
