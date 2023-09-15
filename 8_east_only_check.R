@@ -1170,7 +1170,7 @@ violin.plot.perc <- ggplot(rarefied.change.tall.perc, aes(x=factor(edge, level=l
   guides(fill = FALSE)
 violin.plot.perc
 
-ggsave("figures/FigureS5_eastonly_violin_1panel_perc.pdf", violin.plot.perc, device="pdf", width=8, height=5) 
+ggsave("figures/FigureS5_eastonly_violin_1panel_perc.pdf", violin.plot.perc, device="pdf", width=4, height=5) 
 
 ### FIGURE 2: Freeman-style elevation ranges
 
