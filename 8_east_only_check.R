@@ -19,7 +19,7 @@
 
 ################# SCRIPT 3B ANALOGUE ###############
 
-###### NOTE TO RACHEL: You will murder GitHub if you try to push 700 error logs. Just delete them locally - they aren't needed
+###### NOTE: GitHub will die if you try to push 700 error logs. Just delete them locally - they aren't needed
 
 # Packages needed:
 
@@ -829,13 +829,13 @@ avg.confint.ALLDAT.finaldf <- avg.confint.ALLDAT.finaldf.big[, c(2:31)]
 # Store output as CSV. I manually deleted these files later
 
 write.csv(coeff.ALLDAT.finaldf, 
-          file = "data/TEMP_eastonly_3c_new_coefficients.csv", 
+          file = "data/east_only_check/eastonly_3c_new_coefficients.csv", 
           row.names = FALSE)
 write.csv(avg.confint.ALLDAT.finaldf, 
-          file = "data/TEMP_eastonly_3c_new_confint.csv", 
+          file = "data/east_only_check/eastonly_3c_new_confint.csv", 
           row.names = FALSE)
 write.csv(framework.ALLDAT.allsets, 
-          file = "data/TEMP_eastonly_3c_new_framework_logs.csv", 
+          file = "data/east_only_check/eastonly_3c_new_framework_logs.csv", 
           row.names = FALSE)
 
 
