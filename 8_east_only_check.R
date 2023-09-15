@@ -19,7 +19,7 @@
 
 ################# SCRIPT 3B ANALOGUE ###############
 
-###### NOTE: GitHub will die if you try to push 700 error logs. Just delete them locally - they aren't needed
+###### NOTE: GitHub will die if you try to push 700 error logs. Just delete them locally - they aren't needed after this section is completed (i.e., before running script 3C)
 
 # Packages needed:
 
@@ -290,14 +290,14 @@ coeff.ALLDAT.finaldf <- ldply(coeff.ALLDAT, data.frame)
 warn.ALLDAT.finaldf <- ldply(warn.ALLDAT, data.frame)
 
 
-# Store output as CSV. I have manually deleted these files but they can be regenerated
+# Store output as CSV.
 
-#write.csv(coeff.ALLDAT.finaldf, 
- #         file = "data/TEMP_eastonly_3_presence_ALLDAT_ALLSPEC_coefficients.csv", 
-  #        row.names = FALSE) 
-#write.csv(warn.ALLDAT.finaldf, 
- #         file = "data/TEMP_eastonly_3_presence_ALLDAT_ALLSPEC_warnings.csv", 
-  #        row.names = FALSE)
+write.csv(coeff.ALLDAT.finaldf, 
+          file = "data/east_only_check/eastonly_3_presence_ALLDAT_ALLSPEC_coefficients.csv", 
+          row.names = FALSE) 
+write.csv(warn.ALLDAT.finaldf, 
+          file = "data/east_only_check/eastonly_3_presence_ALLDAT_ALLSPEC_warnings.csv", 
+          row.names = FALSE)
 
 
 ###################### SCRIPT 3C ANALOGUE #########################
@@ -353,8 +353,8 @@ regions <- read.csv("data/plot_regions.csv")
 east.regions <- regions[regions$NAME == "East Cascades", 3:4]
 east.list <- c(east.regions$Plot.Name.1980, east.regions$Plot.Name.2015)
 
-# Porting in old CSV of warnings
-warn.ALLDAT <- read.csv("data/TEMP_eastonly_3_presence_ALLDAT_ALLSPEC_warnings.csv", header = TRUE)
+# Porting in CSV of warnings
+warn.ALLDAT <- read.csv("data/east_only_check/eastonly_3_presence_ALLDAT_ALLSPEC_warnings.csv", header = TRUE)
 # Bug correction - force VAME and HODI to run under correct framework
 warn.ALLDAT$Has_warning[warn.ALLDAT$Species == "VAME" 
                         & warn.ALLDAT$Dataset == 36] <- paste("TRUE")
@@ -826,7 +826,7 @@ avg.confint.ALLDAT.finaldf.big <-
 coeff.ALLDAT.finaldf <- coeff.ALLDAT.finaldf.big[, c(2:22)]
 avg.confint.ALLDAT.finaldf <- avg.confint.ALLDAT.finaldf.big[, c(2:31)]
 
-# Store output as CSV. I manually deleted these files later
+# Store output as CSV
 
 write.csv(coeff.ALLDAT.finaldf, 
           file = "data/east_only_check/eastonly_3c_new_coefficients.csv", 
@@ -851,7 +851,7 @@ library(cowplot)
 
 # coefficients from all top models for each rarefied dataset that ran without warnings
 # these models use the poly() formulaton for orthogonal elevation^2 terms
-coeff.ALLDAT <- read.csv("data/TEMP_eastonly_3c_new_coefficients.csv", header = TRUE)
+coeff.ALLDAT <- read.csv("data/east_only_check/eastonly_3c_new_coefficients.csv", header = TRUE)
 
 # filter to just model average for each rarefied dataset
 coeff.avgs <- coeff.ALLDAT %>% filter(Type=="Avg") # now we have up to 100 model averages per species (<100 for the species for which some rarefied datasets threw warnings)
@@ -978,11 +978,12 @@ for (i in 1:dim(species.list.fire)[1]) {
     xlab("") + #Elevation (m)
     ylab("") #Probability of presence
   
-  #ggsave(paste("figures/model.preds_ortho_",sp,".pdf",sep=""), gg, width=5, height=5)
+  ggsave(paste("figures/FigureS6_",sp,".pdf",sep=""), gg, width=5, height=5)
   
   assign(paste0("preds_graph_",sp), gg)
 } 
 
+### Loop writes graphs to PDF. Multi-panel figure compiled in Illustrator. View graphs below:
 
 preds_graph_ACMI
 preds_graph_ARUV
@@ -1038,7 +1039,7 @@ east.regions <- regions[regions$NAME == "East Cascades", 3:4]
 east.list <- c(east.regions$Plot.Name.1980, east.regions$Plot.Name.2015)
 
 # separate out fire species
-species.list.fire <- read.csv("data/TEMP_eastonly_3c_new_coefficients.csv", header = TRUE) %>% 
+species.list.fire <- read.csv("data/east_only_check/eastonly_3c_new_coefficients.csv", header = TRUE) %>% 
   filter(Type=="Avg")  %>% 
   filter(Fire.Included=="Yes") %>% 
   group_by(Species) %>% 
@@ -1137,10 +1138,8 @@ rarefied.change.fire <- rarefied.change.fire %>%
          lead.change.perc = max.975.res - max.975.leg)
 
 rarefied.change.calcs <- rarefied.change.fire
-#write.csv(rarefied.change.calcs, "data/5_range.change.calcs_plotting.csv")
 
 rarefied.change.calcs.supp <- rarefied.change.fire.supp
-#write.csv(rarefied.change.calcs, "data/5_range.change.calcs_supptable.csv")
 
 
 ### FIGURE 3: VIOLIN PLOTS
@@ -1156,7 +1155,7 @@ rarefied.change.tall.perc <- rarefied.change.tall.fire.perc
 
 level_order.perc = c("rear.change.perc", "med.change", "lead.change.perc")
 
-# Violins by range position
+# Violins by range position - spits errors but display is ok
 violin.plot.perc <- ggplot(rarefied.change.tall.perc, aes(x=factor(edge, level=level_order.perc), y=change, fill=fire)) + 
   geom_violin(aes(fill=fire), trim=FALSE, position="dodge", fill = "lightyellow", color = "black") +
   stat_summary(fun.data="mean_sdl", fun.args = list(mult=1), geom="pointrange", position=position_dodge(0.9), cex=0.7)  +
@@ -1167,10 +1166,11 @@ violin.plot.perc <- ggplot(rarefied.change.tall.perc, aes(x=factor(edge, level=l
   scale_x_discrete(labels=c("Lower\nedge", "Range\ncenter", "Upper\nedge")) +
   theme(axis.text.x=element_text(size=12)) +
   ylim(-600,700) +
-  ylab(c("Elevational change (m)\n1983-2015"))
+  ylab(c("Elevational change (m)\n1983-2015")) + 
+  guides(fill = FALSE)
 violin.plot.perc
 
-#ggsave("figures/5_Figure3_violin_1panel_perc.pdf", violin.plot.perc, device="pdf", width=8, height=5) 
+ggsave("figures/FigureS5_eastonly_violin_1panel_perc.pdf", violin.plot.perc, device="pdf", width=8, height=5) 
 
 ### FIGURE 2: Freeman-style elevation ranges
 
@@ -1185,7 +1185,7 @@ rarefied.change.calcs.facet <- rarefied.change.calcs.fire
 
 species.labels <- rarefied.change.calcs.facet$Species[order(rarefied.change.calcs.facet$fire, rarefied.change.calcs.facet$species.rank.med)]
 
-fire.labs <- c("non-fire-experiencing species", "fire-experiencing")
+fire.labs <- c("non-fire-experiencing species", "fire-experiencing (east only)")
 names(fire.labs) <- c("no", "yes")
 
 p.facet <- ggplot(rarefied.change.calcs.facet) + 
@@ -1202,7 +1202,7 @@ p.facet <- ggplot(rarefied.change.calcs.facet) +
   scale_x_discrete()
 p.facet
 
-# ggsave("figures/5_Figure2_elevation_ranges_2panel.pdf", p.facet, device="pdf", width=11, height=8) 
+ggsave("figures/FigureS4_elevation_ranges.pdf", p.facet, device="pdf", width=3.5, height=6) 
 
 
 
