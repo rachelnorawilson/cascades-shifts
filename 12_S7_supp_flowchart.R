@@ -1,4 +1,4 @@
-# This script generates the flowchart seen in the supplementary material Fig S3
+# This script generates the flowchart seen in the supplementary material Fig S7
 
 library(DiagrammeR)
 library(DiagrammeRsvg)
@@ -61,7 +61,7 @@ setwd("figures") # For some reason, can't specify this in file name
 export_svg(flowchart) %>%
   charToRaw() %>%
   rsvg() %>%
-  png::writePNG("FigureS3_supp_flowchart.png")
+  png::writePNG("12_FigureS7_supp_flowchart.png")
 
 
 
