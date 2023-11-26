@@ -293,10 +293,10 @@ warn.ALLDAT.finaldf <- ldply(warn.ALLDAT, data.frame)
 # Store output as CSV.
 
 write.csv(coeff.ALLDAT.finaldf, 
-          file = "data/east_only_check/eastonly_3_presence_ALLDAT_ALLSPEC_coefficients.csv", 
+          file = "data/8_east_only_check/eastonly_3_presence_ALLDAT_ALLSPEC_coefficients.csv", 
           row.names = FALSE) 
 write.csv(warn.ALLDAT.finaldf, 
-          file = "data/east_only_check/eastonly_3_presence_ALLDAT_ALLSPEC_warnings.csv", 
+          file = "data/8_east_only_check/eastonly_3_presence_ALLDAT_ALLSPEC_warnings.csv", 
           row.names = FALSE)
 
 
@@ -829,13 +829,13 @@ avg.confint.ALLDAT.finaldf <- avg.confint.ALLDAT.finaldf.big[, c(2:31)]
 # Store output as CSV
 
 write.csv(coeff.ALLDAT.finaldf, 
-          file = "data/east_only_check/eastonly_3c_new_coefficients.csv", 
+          file = "data/8_east_only_check/eastonly_3c_new_coefficients.csv", 
           row.names = FALSE)
 write.csv(avg.confint.ALLDAT.finaldf, 
-          file = "data/east_only_check/eastonly_3c_new_confint.csv", 
+          file = "data/8_east_only_check/eastonly_3c_new_confint.csv", 
           row.names = FALSE)
 write.csv(framework.ALLDAT.allsets, 
-          file = "data/east_only_check/eastonly_3c_new_framework_logs.csv", 
+          file = "data/8_east_only_check/eastonly_3c_new_framework_logs.csv", 
           row.names = FALSE)
 
 
@@ -978,7 +978,7 @@ for (i in 1:dim(species.list.fire)[1]) {
     xlab("") + #Elevation (m)
     ylab("") #Probability of presence
   
-  ggsave(paste("figures/FigureS6_",sp,".pdf",sep=""), gg, width=5, height=5)
+  ggsave(paste("figures/8_FigureS6_eastonly_",sp,".pdf",sep=""), gg, width=5, height=5)
   
   assign(paste0("preds_graph_",sp), gg)
 } 
@@ -1170,7 +1170,7 @@ violin.plot.perc <- ggplot(rarefied.change.tall.perc, aes(x=factor(edge, level=l
   guides(fill = FALSE)
 violin.plot.perc
 
-ggsave("figures/FigureS5_eastonly_violin_1panel_perc.pdf", violin.plot.perc, device="pdf", width=4, height=5) 
+ggsave("figures/8_FigureS5_eastonly_violin_1panel_perc.pdf", violin.plot.perc, device="pdf", width=4, height=5) 
 
 ### FIGURE 2: Freeman-style elevation ranges
 
@@ -1202,7 +1202,7 @@ p.facet <- ggplot(rarefied.change.calcs.facet) +
   scale_x_discrete()
 p.facet
 
-ggsave("figures/FigureS4_elevation_ranges.pdf", p.facet, device="pdf", width=3.5, height=6) 
+ggsave("figures/8_FigureS4_elevation_ranges_eastonly.pdf", p.facet, device="pdf", width=3.5, height=6) 
 
 
 
