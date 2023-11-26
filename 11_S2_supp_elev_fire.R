@@ -20,7 +20,7 @@ violin.plot.burns <- ggplot(burn.data, aes(x = Fires, y = Elevation.m)) +
   theme(legend.position="none", text = element_text(size = 16)) +
   stat_summary(fun=mean, geom="point", cex=2)
 
-ggsave("figures/FigureS2_supp_elev_fire.pdf", violin.plot.burns, width=12, height=8)
+ggsave("figures/11_FigureS2_supp_elev_fire.pdf", violin.plot.burns, width=12, height=8)
 
 # t-test for difference in means between unburned and burned plots
 t.test(burn.data$Elevation.m[burn.data$Fires=="Unburned"], burn.data$Elevation.m[burn.data$Fires=="Burned"])
