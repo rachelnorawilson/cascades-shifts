@@ -83,7 +83,7 @@ forestplot.fire <- ggplot(dat=all.fire, aes(y=Parameter, x=mean, xmin=lower, xma
   theme(strip.background = element_rect(fill = "lightgrey", colour = "black", linewidth = 1)) + 
   theme(legend.position = "none")
 
-ggsave("figures/FigureS4_supp_forestplot_coeffs_fire.pdf", forestplot.fire, width=12, height=8)
+ggsave("figures/13_FigureS8_supp_forestplot_coeffs_fire.pdf", forestplot.fire, width=12, height=8)
 # thumbnail sillhouettes added in Adobe Illustrator
 
 
@@ -139,7 +139,7 @@ forestplot.nofire <- ggplot(dat=all.nofire, aes(y=Parameter, x=mean, xmin=lower,
   theme(strip.background = element_rect(fill = "lightgrey", colour = "black", size = 1)) +
   theme(legend.position = "none")
 
-ggsave("figures/FigureS8_supp_forestplot_coeffs_nofire.pdf", forestplot.nofire, width=12, height=8)
+ggsave("figures/13_FigureS12_supp_forestplot_coeffs_nofire.pdf", forestplot.nofire, width=12, height=8)
 # thumbnail sillhouettes added in Adobe Illustrator
 
 
