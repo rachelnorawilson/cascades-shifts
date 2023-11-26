@@ -94,7 +94,7 @@ Pwin <- ggplot(annual.sub, aes(x=Year, y=PAS, by=ID1)) +
 # combine into multi-panel
 all <- (MAT | Tsum | Twin) / (MAP | Psum | Pwin) + 
   plot_layout(guides="collect") 
-ggsave("figures/FigureS1_suppclimate.pdf", all, width=11, height=8)
+ggsave("figures/10_FigureS1_suppclimate.pdf", all, width=11, height=8)
 
 
 
@@ -234,5 +234,5 @@ Diffs <- left_join(Ann.diffs, Seas.diffs)
 
 Slopes <- left_join(left_join(left_join(left_join(left_join(MAT.slopes, Tsum.slopes), Twin.slopes), MAP.slopes), Psum.slopes), Pwin.slopes)
 
-write_csv(Diffs, "data/supp_climate_diffs.csv")
-write_csv(Slopes, "data/supp_climate_slopes.csv")
+write_csv(Diffs, "data/10_supp_climate_diffs.csv")
+write_csv(Slopes, "data/10_supp_climate_slopes.csv")
