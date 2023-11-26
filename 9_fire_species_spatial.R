@@ -240,7 +240,7 @@ gridat.lcc <- spTransform(gridatt, CRS=CRS(prj.lcc))
 ### Maps of fire-experiencing species
 
 # ACMI
-pdf(file="figures/map_ACMI_plots.pdf", width=10, height=8)
+pdf(file="figures/review_only_map_ACMI_plots.pdf", width=10, height=8)
 plot(park.lcc, border="black") # park boundary
 plot(ecoreg.crop.lcc, col=rgb(.5,0.8,1,0.3), border="blue", add=T) # ecoregions polygons
 plot(fires.lcc, col=rgb(1,0,0,0.3), border="red4", add=T) # wildfire polygons
@@ -252,7 +252,7 @@ plot(frame.grd.lcc, add=TRUE, lty="dashed", col="grey", lwd=1) # gridlines
 dev.off()
 
 # ARUV
-pdf(file="figures/map_ARUV_plots.pdf", width=10, height=8)
+pdf(file="figures/review_only_map_ARUV_plots.pdf", width=10, height=8)
 plot(park.lcc, border="black") # park boundary
 plot(ecoreg.crop.lcc, col=rgb(.5,0.8,1,0.3), border="blue", add=T) # ecoregions polygons
 plot(fires.lcc, col=rgb(1,0,0,0.3), border="red4", add=T) # wildfire polygons
@@ -264,7 +264,7 @@ plot(frame.grd.lcc, add=TRUE, lty="dashed", col="grey", lwd=1) # gridlines
 dev.off()
 
 # VAME
-pdf(file="figures/map_VAME_plots.pdf", width=10, height=8)
+pdf(file="figures/review_only_map_VAME_plots.pdf", width=10, height=8)
 plot(park.lcc, border="black") # park boundary
 plot(ecoreg.crop.lcc, col=rgb(.5,0.8,1,0.3), border="blue", add=T) # ecoregions polygons
 plot(fires.lcc, col=rgb(1,0,0,0.3), border="red4", add=T) # wildfire polygons
@@ -276,7 +276,7 @@ plot(frame.grd.lcc, add=TRUE, lty="dashed", col="grey", lwd=1) # gridlines
 dev.off()
 
 # CARU
-pdf(file="figures/map_CARU_plots.pdf", width=10, height=8)
+pdf(file="figures/review_only_map_CARU_plots.pdf", width=10, height=8)
 plot(park.lcc, border="black") # park boundary
 plot(ecoreg.crop.lcc, col=rgb(.5,0.8,1,0.3), border="blue", add=T) # ecoregions polygons
 plot(fires.lcc, col=rgb(1,0,0,0.3), border="red4", add=T) # wildfire polygons
@@ -288,7 +288,7 @@ plot(frame.grd.lcc, add=TRUE, lty="dashed", col="grey", lwd=1) # gridlines
 dev.off()
 
 # CEVE
-pdf(file="figures/map_CEVE_plots.pdf", width=10, height=8)
+pdf(file="figures/review_only_map_CEVE_plots.pdf", width=10, height=8)
 plot(park.lcc, border="black") # park boundary
 plot(ecoreg.crop.lcc, col=rgb(.5,0.8,1,0.3), border="blue", add=T) # ecoregions polygons
 plot(fires.lcc, col=rgb(1,0,0,0.3), border="red4", add=T) # wildfire polygons
@@ -300,7 +300,7 @@ plot(frame.grd.lcc, add=TRUE, lty="dashed", col="grey", lwd=1) # gridlines
 dev.off()
 
 # EPAN (CHAN)
-pdf(file="figures/map_EPAN_plots.pdf", width=10, height=8)
+pdf(file="figures/review_only_map_EPAN_plots.pdf", width=10, height=8)
 plot(park.lcc, border="black") # park boundary
 plot(ecoreg.crop.lcc, col=rgb(.5,0.8,1,0.3), border="blue", add=T) # ecoregions polygons
 plot(fires.lcc, col=rgb(1,0,0,0.3), border="red4", add=T) # wildfire polygons
@@ -312,7 +312,7 @@ plot(frame.grd.lcc, add=TRUE, lty="dashed", col="grey", lwd=1) # gridlines
 dev.off()
 
 # PAMY
-pdf(file="figures/map_PAMY_plots.pdf", width=10, height=8)
+pdf(file="figures/review_only_map_PAMY_plots.pdf", width=10, height=8)
 plot(park.lcc, border="black") # park boundary
 plot(ecoreg.crop.lcc, col=rgb(.5,0.8,1,0.3), border="blue", add=T) # ecoregions polygons
 plot(fires.lcc, col=rgb(1,0,0,0.3), border="red4", add=T) # wildfire polygons
@@ -376,7 +376,7 @@ table(pres_reg_df$NAME,
       pres_reg_df$Data.Type)
 
 table(plots_reg_df$NAME)
-write.csv(plots_reg_df, "data/plot_regions.csv")
+write.csv(plots_reg_df, "data/9_plot_regions.csv")
 
 ### What is distribution of distances between a species' historical presences and burned plots? (i.e., what was opportunity to colonize burned areas?)
 
@@ -410,12 +410,12 @@ dat.burn.distances <- bind_cols(as.data.frame(dat.pres.leg), as.data.frame(dist.
 # Make taller dataframe
 dat.burn.distances.tall <- pivot_longer(dat.burn.distances, cols=starts_with("V"), values_to="BurnPlotDist")
 
-pdf(file="figures/FigureSx_supp_distancetoburn.pdf", width=10, height=8)
+pdf(file="figures/9_FigureS3_supp_distancetoburn.pdf", width=10, height=8)
 ggplot(data=dat.burn.distances.tall, aes(x=BurnPlotDist)) +
   geom_histogram() +
   facet_wrap(~Species.Code) +
   xlab("Distance from legacy presences to burned plots (km)") 
-dev.off()
+dev.off() #colours, sillhouettes added in illustrator
 
 
 ### What kinds of burns did burned plots experience? Categorize as natural, prescribed, etc. Also bring in burn severity when available (values extracted from rasters above).
@@ -516,7 +516,7 @@ burn.severity.tall$CAL_YEAR <- gsub('[sever.]',"", burn.severity.tall$CAL_YEAR)
 fire.suppl.table <- left_join(fire.types, burn.severity.tall) %>% 
   dplyr::select(Latitude, Longitude, Elevation=Elevation.m, PlotName=Plot.Name.2015, Type=TYPE, Year=CAL_YEAR, Size=ACRES, Severity, Richness)
 
-write.csv(fire.suppl.table, "data/supp_plot_fire_types.csv")
+write.csv(fire.suppl.table, "data/9_supp_plot_fire_types.csv")
 
 table(fire.types$Plot.Name.2015[fire.types$Species.Code=="ACMI"], 
       fire.types$TYPE[fire.types$Species.Code=="ACMI"],
@@ -528,7 +528,7 @@ table(fire.types$Plot.Name.2015[fire.types$Species.Code=="VAME"],
       fire.types$TYPE[fire.types$Species.Code=="VAME"],
       fire.types$CAL_YEAR[fire.types$Species.Code=="VAME"])
 table(fire.types$Plot.Name.2015[fire.types$Species.Code=="CARU"], 
-      fire.types$TYPE[fire.types$Species.Code=="CARU"]
+      fire.types$TYPE[fire.types$Species.Code=="CARU"],
       fire.types$CAL_YEAR[fire.types$Species.Code=="CARU"])
 table(fire.types$Plot.Name.2015[fire.types$Species.Code=="CEVE"], 
       fire.types$TYPE[fire.types$Species.Code=="CEVE"],
