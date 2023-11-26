@@ -91,7 +91,7 @@ pheatmap(mat.fire,
          fontsize_col = 10,
          angle_col = 0,
          breaks = my.breaks
-) # Manually save --> Figure S5
+) # Manually save --> 14_FigureS9_supp_heatmap_fire.coeffs.pdf
 
 
 ## Step 3: Look at NO FIRE data
@@ -191,7 +191,7 @@ no.fire.bot <- pheatmap(mat.nofire.bot,
 
 all.heatmaps <- list(no.fire.top[[4]], no.fire.bot[[4]])
 for.plotting <- do.call(grid.arrange, all.heatmaps)
-for.plotting # Manually save --> Figure S9
+for.plotting # Manually save --> 14_FigureS13_supp_heatmap_nofire_coeffs.pdf
 
 
 ######### PART 2: Percentage of + vs - coefficients out of total datasets #########
@@ -259,7 +259,7 @@ pheatmap(mat.percfire.sm,
          fontsize_row = 12,
          fontsize_col = 15,
          angle_col = 0
-) # Manually save --> Figure S6
+) # Manually save --> 14_FigureS10_supp_heatmap_fire_perc.pdf
 
 
 ## Step 3: Look at NO FIRE data
@@ -355,7 +355,7 @@ nofire.perc.bot <- pheatmap(mat.percnofire.bot,
 
 all.heatmaps.perc <- list(nofire.perc.top[[4]], nofire.perc.bot[[4]])
 for.plotting.perc <- do.call(grid.arrange, all.heatmaps.perc)
-for.plotting.perc # Manually save --> Figure S10
+for.plotting.perc # Manually save --> 14_FigureS14_supp_heatmap_nofire_perc.pdf
 
 
 
