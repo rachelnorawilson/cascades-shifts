@@ -2,7 +2,7 @@ library(BIEN)
 library(tidyverse)
 
 # start with species list
-species.list <- read.csv("data/species_list_bien.csv") %>% 
+species.list <- read.csv("data/review_only_species_list_bien.csv") %>% 
   dplyr::select(SpeciesBinomial)
 
 species.list

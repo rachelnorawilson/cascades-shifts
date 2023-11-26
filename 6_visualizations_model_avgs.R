@@ -276,7 +276,7 @@ multi.supp.fire.x <- ggdraw(add_sub(multi.supp.fire, "Elevation (m)", size=18, x
 
 multi.supp.fire.xy <- ggdraw(add_sub(multi.supp.fire.x, "Probability of presence", size=18, x=0.37, y=2.1, angle=90))
 
-ggsave("figures/6_FigureS7_supp_model_preds_fire.pdf", multi.supp.fire.xy, width=10, height=8) 
+ggsave("figures/6_FigureS11_supp_model_preds_fire.pdf", multi.supp.fire.xy, width=10, height=8) 
 
 
 
@@ -325,6 +325,6 @@ multi.supp.nofire.x <- ggdraw(add_sub(multi.supp.nofire, "Elevation (m)", size=1
 
 multi.supp.nofire.xy <- ggdraw(add_sub(multi.supp.nofire.x, "Probability of presence", size=18, x=0.2, y=2.5, angle=90))
 
-ggsave("figures/6_FigureS11_supp_model_preds_nofire.pdf", multi.supp.nofire.xy, width=12, height=10) 
+ggsave("figures/6_FigureS15_supp_model_preds_nofire.pdf", multi.supp.nofire.xy, width=12, height=10) 
 
 

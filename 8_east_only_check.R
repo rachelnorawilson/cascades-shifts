@@ -12,6 +12,7 @@
 # Part of this script (3b) creates a large file and places it in a folder
 # "warning_logs"; these are not stored on GitHub but can be shared upon request and/or
 # reproduced locally. User will need to adjust the destination directory (lines 102 and 104).
+# I created a temporary folder ("temp_warnings") and removed files after analysis (see line 23).
 
 # No CIs are generated in this script.
 
@@ -61,7 +62,7 @@ load("data/rare.ALL.Rda") # Run time 5 sec
 load("data/0.Species.List.Rda")
 
 # Load list of plot regions
-regions <- read.csv("data/plot_regions.csv")
+regions <- read.csv("data/9_plot_regions.csv")
 east.regions <- regions[regions$NAME == "East Cascades", 3:4]
 east.list <- c(east.regions$Plot.Name.1980, east.regions$Plot.Name.2015)
 
@@ -349,12 +350,12 @@ species.list <- c("ACMI", "ARUV", "CARU", "CEVE", "EPAN", "PAMY", "VAME")
 species.list <- factor(species.list)
 
 # Load list of plot regions
-regions <- read.csv("data/plot_regions.csv")
+regions <- read.csv("data/9_plot_regions.csv")
 east.regions <- regions[regions$NAME == "East Cascades", 3:4]
 east.list <- c(east.regions$Plot.Name.1980, east.regions$Plot.Name.2015)
 
 # Porting in CSV of warnings
-warn.ALLDAT <- read.csv("data/east_only_check/eastonly_3_presence_ALLDAT_ALLSPEC_warnings.csv", header = TRUE)
+warn.ALLDAT <- read.csv("data/8_east_only_check/eastonly_3_presence_ALLDAT_ALLSPEC_warnings.csv", header = TRUE)
 # Bug correction - force VAME and HODI to run under correct framework
 warn.ALLDAT$Has_warning[warn.ALLDAT$Species == "VAME" 
                         & warn.ALLDAT$Dataset == 36] <- paste("TRUE")
@@ -851,7 +852,7 @@ library(cowplot)
 
 # coefficients from all top models for each rarefied dataset that ran without warnings
 # these models use the poly() formulaton for orthogonal elevation^2 terms
-coeff.ALLDAT <- read.csv("data/east_only_check/eastonly_3c_new_coefficients.csv", header = TRUE)
+coeff.ALLDAT <- read.csv("data/8_east_only_check/eastonly_3c_new_coefficients.csv", header = TRUE)
 
 # filter to just model average for each rarefied dataset
 coeff.avgs <- coeff.ALLDAT %>% filter(Type=="Avg") # now we have up to 100 model averages per species (<100 for the species for which some rarefied datasets threw warnings)
@@ -1034,12 +1035,12 @@ load("data/rare.ALL.Rda")
 species.list <- c("ACMI", "ARUV", "CARU", "CEVE", "EPAN", "PAMY", "VAME")
 
 # Load list of plot regions
-regions <- read.csv("data/plot_regions.csv")
+regions <- read.csv("data/9_plot_regions.csv")
 east.regions <- regions[regions$NAME == "East Cascades", 3:4]
 east.list <- c(east.regions$Plot.Name.1980, east.regions$Plot.Name.2015)
 
 # separate out fire species
-species.list.fire <- read.csv("data/east_only_check/eastonly_3c_new_coefficients.csv", header = TRUE) %>% 
+species.list.fire <- read.csv("data/8_east_only_check/eastonly_3c_new_coefficients.csv", header = TRUE) %>% 
   filter(Type=="Avg")  %>% 
   filter(Fire.Included=="Yes") %>% 
   group_by(Species) %>% 
